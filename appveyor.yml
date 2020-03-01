@@ -1,0 +1,51 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration:
+- Debug
+- Release
+build_script:
+- &30911415 cmd: >-
+    git submodule init
+
+    git submodule update
+
+
+    if exist build rmdir /s /q build-on
+
+    if exist build rmdir /s /q build-off
+
+
+    mkdir build-on
+
+    mkdir build-off
+
+
+    cmake -G "Visual Studio 15 2017" -D BUILD_SHARED_LIBS=1  -Bbuild-on   -H.
+
+    cmake -G "Visual Studio 15 2017" -D BUILD_SHARED_LIBS=0  -Bbuild-off  -H.
+
+
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" build-on\googletest-sample-cmake.sln  /p:Configuration=%CONFIGURATION% /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" build-off\googletest-sample-cmake.sln /p:Configuration=%CONFIGURATION% /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+test_script:
+- cmd: >-
+    if exist build-on\bin\Debug\tests.exe    build-on\bin\Debug\tests.exe --gtest_list_tests
+
+    if exist build-on\bin\Debug\tests.exe    build-on\bin\Debug\tests.exe
+
+    if exist build-off\bin\Debug\tests.exe   build-off\bin\Debug\tests.exe --gtest_list_tests
+
+    if exist build-off\bin\Debug\tests.exe   build-off\bin\Debug\tests.exe
+
+
+    if exist build-on\bin\Release\tests.exe  build-on\bin\Release\tests.exe --gtest_list_tests
+
+    if exist build-on\bin\Release\tests.exe  build-on\bin\Release\tests.exe
+
+    if exist build-off\bin\Release\tests.exe build-off\bin\Release\tests.exe --gtest_list_tests
+
+    if exist build-off\bin\Release\tests.exe build-off\bin\Release\tests.exe
+
+
+    if exist run-tests.bat call run-tests.bat
