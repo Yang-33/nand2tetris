@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-project (googletest-sample-cmake)
+project (nand2tetris)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE CXX FLAGS "{CMAKE CXX FLAGS} -Wall -Wextra -Wshadow -ftrapv")
 
@@ -21,7 +21,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(googletest)
-add_subdirectory(src)
+add_subdirectory(source)
 add_subdirectory(tests)
 
 # set Startup Project
@@ -35,6 +35,6 @@ set_target_properties(gmock       PROPERTIES FOLDER GoogleTest)
 set_target_properties(gmock_main  PROPERTIES FOLDER GoogleTest)
 set_target_properties(gtest       PROPERTIES FOLDER GoogleTest)
 set_target_properties(gtest_main  PROPERTIES FOLDER GoogleTest)
-set_target_properties(calc        PROPERTIES FOLDER library)
+set_target_properties(src        PROPERTIES FOLDER library)
 set_target_properties(tests-custom PROPERTIES FOLDER executable)
 set_target_properties(tests-shared PROPERTIES FOLDER executable)

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6.4)
 include(${CMAKE_SOURCE_DIR}/runtime.cmake)
 
 # define a variable of project name
-set( project_name calc)
+set(project_name src)
 
 # define a variable of project name
 project (${project_name})

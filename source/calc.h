@@ -1,21 +1,21 @@
 #include <string>
 #include <exception>
-#include "calc_Export.h"
+#include "src_Export.h"
 
 class DivideByZeroException : public std::exception
 {
 public:
 	explicit DivideByZeroException(const char* message)
 #ifdef _MSC_VER
-        : std::exception(message)
+		: std::exception(message)
 #else
-        : std::exception()
+		: std::exception()
 #endif
-    {
-    }
+	{
+	}
 };
 
-class calc_EXPORT Calc
+class src_EXPORT Calc
 {
 public:
 	int Add(int a, int b);

@@ -5,10 +5,10 @@ file(GLOB SRC ${CMAKE_CURRENT_LIST_DIR}/test*.cpp ${CMAKE_CURRENT_LIST_DIR}/*.h)
 
 # add include directories
 include_directories(${googletest_SOURCE_DIR}/include)
-include_directories(${calc_SOURCE_DIR})
+include_directories(${src_SOURCE_DIR})
 
 # add include directory for ${project_name}_Export.h
-include_directories(${calc_BINARY_DIR})
+include_directories(${src_BINARY_DIR})
 
 # define sources files of an executable
 if (CUSTOM_MAIN)
@@ -34,4 +34,4 @@ target_link_libraries(${project_name} gtest)
 if (NOT CUSTOM_MAIN)
   target_link_libraries(${project_name} gtest_main)
 endif (NOT CUSTOM_MAIN)
-target_link_libraries(${project_name} calc)
+target_link_libraries(${project_name} src)
