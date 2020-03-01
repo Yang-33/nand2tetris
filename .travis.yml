@@ -12,11 +12,10 @@ env:
     # Misc
     - RUN_TESTS=true
 
-matrix:
+jobs:
   include:
     - os: linux
       dist: xenial
-      sudo: true
       compiler: gcc
       addons:
        apt:
