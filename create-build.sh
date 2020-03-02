@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ ! -e googletest ]; then
+if [ ! -e external/googletest ]; then
     git submodule init
     git submodule update
 fi
