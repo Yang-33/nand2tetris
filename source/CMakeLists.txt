@@ -9,7 +9,8 @@ set(project_name src)
 project (${project_name})
 
 # define a variable SRC with file GLOB
-file(GLOB SRC *.cpp *.h)
+file(GLOB_RECURSE SRC *.cpp *.h)
+message(STATUS "source !-!- ${SRC} -!-!")
 
 # define as exports
 if (BUILD_SHARED_LIBS)
@@ -29,3 +30,5 @@ GENERATE_EXPORT_HEADER( ${project_name}
 	EXPORT_FILE_NAME ${project_name}_Export.h
 	STATIC_DEFINE ${project_name}_BUILT_AS_STATIC
 )
+
+add_executable(Main ${SRC})

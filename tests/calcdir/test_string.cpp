@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "sstring.h"
+#include "calcdir/sstring.h"
 
 class TestTest123 : public ::testing::Test
 {

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "calc.h"
+#include "calcdir/calc.h"
 
 class TestTest : public ::testing::Test
 {

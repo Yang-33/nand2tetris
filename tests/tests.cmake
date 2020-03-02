@@ -1,7 +1,8 @@
 include(${CMAKE_SOURCE_DIR}/runtime.cmake)
 
 # define a variable SRC with file GLOB
-file(GLOB SRC ${CMAKE_CURRENT_LIST_DIR}/test*.cpp ${CMAKE_CURRENT_LIST_DIR}/*.h)
+file(GLOB_RECURSE SRC ${CMAKE_CURRENT_LIST_DIR}/*test*.cpp ${CMAKE_CURRENT_LIST_DIR}/*.h)
+message(STATUS "tests !-!- ${SRC} -!-!")
 
 # add include directories
 include_directories(${googletest_SOURCE_DIR}/include)

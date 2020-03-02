@@ -12,6 +12,7 @@ public:
 		: std::exception()
 #endif
 	{
+		puts(message);
 	}
 };
 
