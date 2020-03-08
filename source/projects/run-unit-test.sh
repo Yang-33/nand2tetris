@@ -24,6 +24,19 @@ do
   fi
 done
 
+## Special case : 04
+sh external/tools/Assembler.sh source/projects/04/mult/Mult.asm
+sh external/tools/CPUEmulator.sh source/projects/04/mult/Mult.tst
+if [ $? -ne 0 ]; then
+  status=1
+fi
+
+sh external/tools/Assembler.sh source/projects/04/fill/Fill.asm
+sh external/tools/CPUEmulator.sh source/projects/04/fill/FillAutomatic.tst
+if [ $? -ne 0 ]; then
+  status=1
+fi
+
 rm -rf $TESTDIR
 
 exit $status
