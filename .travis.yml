@@ -31,7 +31,7 @@ jobs:
          sources: &precise_latest_boost_sources
            - ubuntu-toolchain-r-test
            - llvm-toolchain-precise-3.7
-    
+
 before_install:
     - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
     - git submodule update --init --recursive
@@ -47,7 +47,7 @@ install:
     - ${CXX} --version
     - ${CXX} -v
     - sudo pip install codecov
-    
+
     # Download and install recent cmake
     - |
       if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then

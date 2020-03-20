@@ -1,5 +1,9 @@
 #!/bin/bash
 
+## CAUTION: This script isn't for CI.
+## This script for HardwareSimulator test. In particular, it's for
+## chapter 3.
+
 TESTDIR="source/projects/unittest"
 mkdir $TESTDIR
 
@@ -8,7 +12,8 @@ for f in \
 source/projects/01/* \
 source/projects/02/* \
 source/projects/03/a/* \
-source/projects/03/b/*
+source/projects/03/b/* \
+
 do
   cp $f $TESTDIR/`basename $f`
 done
@@ -23,19 +28,6 @@ do
     status=1
   fi
 done
-
-## Special case : 04
-sh external/tools/Assembler.sh source/projects/04/mult/Mult.asm
-sh external/tools/CPUEmulator.sh source/projects/04/mult/Mult.tst
-if [ $? -ne 0 ]; then
-  status=1
-fi
-
-sh external/tools/Assembler.sh source/projects/04/fill/Fill.asm
-sh external/tools/CPUEmulator.sh source/projects/04/fill/FillAutomatic.tst
-if [ $? -ne 0 ]; then
-  status=1
-fi
 
 rm -rf $TESTDIR
 
