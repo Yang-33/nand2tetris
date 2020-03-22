@@ -10,7 +10,7 @@ project (${project_name})
 
 # define a variable SRC with file GLOB
 file(GLOB_RECURSE SRC *.cpp *.h)
-message(STATUS "source !-!- ${SRC} -!-!")
+# message(STATUS "source !-!- ${SRC} -!-!")
 
 # define as exports
 if (BUILD_SHARED_LIBS)
@@ -31,4 +31,15 @@ GENERATE_EXPORT_HEADER( ${project_name}
 	STATIC_DEFINE ${project_name}_BUILT_AS_STATIC
 )
 
-add_executable(Main ${SRC})
+
+## make source/main.cpp executable
+add_subdirectory(calcdir)
+add_subdirectory(nest)
+add_subdirectory(projects/06)
+
+add_executable(Main main.cpp)
+target_link_libraries(
+  Main
+  Calcdir
+  Nest
+)
