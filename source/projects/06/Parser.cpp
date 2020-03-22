@@ -33,7 +33,7 @@ namespace nand2tetris {
 
     }
     bool Parser::hasMoreCommands() {
-        return !command_queue_.empty();
+        return command_queue_.size() > 1;
     }
     void Parser::advance() {
         assert(hasMoreCommands());
@@ -68,8 +68,10 @@ namespace nand2tetris {
 
     // dest=comp;jump
     std::string Parser::dest() {
-        COMMAND_TYPE current_command_type = commandType();
-        assert(current_command_type == COMMAND_TYPE::C_COMMAND);
+        {
+            COMMAND_TYPE current_command_type = commandType();
+            assert(current_command_type == COMMAND_TYPE::C_COMMAND);
+        }
         std::string current_command = command_queue_.front();
         auto equal_index = current_command.find_first_of('=');
         if (equal_index == std::string::npos) {
@@ -81,8 +83,10 @@ namespace nand2tetris {
     }
 
     std::string Parser::comp() {
-        COMMAND_TYPE current_command_type = commandType();
-        assert(current_command_type == COMMAND_TYPE::C_COMMAND);
+        {
+            COMMAND_TYPE current_command_type = commandType();
+            assert(current_command_type == COMMAND_TYPE::C_COMMAND);
+        }
         std::string current_command = command_queue_.front();
         auto equal_index = current_command.find_first_of('=');
         if (equal_index == std::string::npos) {
@@ -98,8 +102,10 @@ namespace nand2tetris {
 
     }
     std::string Parser::jump() {
-        COMMAND_TYPE current_command_type = commandType();
-        assert(current_command_type == COMMAND_TYPE::C_COMMAND);
+        {
+            COMMAND_TYPE current_command_type = commandType();
+            assert(current_command_type == COMMAND_TYPE::C_COMMAND);
+        }
         std::string current_command = command_queue_.front();
         auto semicolon_index = current_command.find_first_of(';');
         if (semicolon_index == std::string::npos) {
