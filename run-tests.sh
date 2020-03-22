@@ -7,5 +7,6 @@ sh source/projects/02/run-test.sh
 sh source/projects/03/run-test.sh
 sh source/projects/04/run-test.sh
 sh source/projects/05/run-test.sh
+sh source/projects/06/run-test.sh
 # for only local env
 # sh source/projects/run-unit-test.sh
