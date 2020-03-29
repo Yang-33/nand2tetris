@@ -14,12 +14,15 @@ namespace nand2tetris {
     CodeWriter::CodeWriter(const std::string& outputfile) :
         ofs_(outputfile), filename_(""), labelid_(0) {
         auto dot_index = outputfile.find_last_of('.');
-        filename_ = outputfile.substr(0, dot_index);
+        auto last_slash_index = outputfile.find_last_of('/');
+        filename_ = outputfile.substr(last_slash_index + 1, dot_index);
+        std::cerr << "filename in CodeWriter is " << filename_ << std::endl;
     }
     // Inform beginning translation a new vm file.
     void CodeWriter::setFileName(const std::string& filename) {
         auto dot_index = filename.find_last_of('.');
-        filename_ = filename.substr(0, dot_index);
+        auto last_slash_index = filename.find_last_of('/');
+        filename_ = filename.substr(last_slash_index + 1, dot_index);
     }
 
     std::string CodeWriter::create_new_label() {
@@ -142,9 +145,138 @@ namespace nand2tetris {
                 stackTopFromComp("D"); // *SP = D
                 incrementSP(); // ++SP
             }
+            else if (segment == kLOCAL) {
+                ofs_ << "@LCL" << std::endl;
+                ofs_ << "D=M" << std::endl; // D=M
+                ofs_ << "@" + std::to_string(index) << std::endl; // @index
+                ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
+                ofs_ << "D=M" << std::endl; // D = M
+                stackTopFromComp("D"); // *SP = D
+                incrementSP(); // ++SP
+            }
+            else if (segment == kARGUMENT) {
+                ofs_ << "@ARG" << std::endl;
+                ofs_ << "D=M" << std::endl; // D=M
+                ofs_ << "@" + std::to_string(index) << std::endl; // @index
+                ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
+                ofs_ << "D=M" << std::endl; // D = M
+                stackTopFromComp("D"); // *SP = D
+                incrementSP(); // ++SP
+            }
+            else if (segment == kTHIS) {
+                ofs_ << "@THIS" << std::endl;
+                ofs_ << "D=M" << std::endl; // D=M
+                ofs_ << "@" + std::to_string(index) << std::endl; // @index
+                ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
+                ofs_ << "D=M" << std::endl; // D = M
+                stackTopFromComp("D"); // *SP = D
+                incrementSP(); // ++SP
+            }
+            else if (segment == kTHAT) {
+                ofs_ << "@THAT" << std::endl;
+                ofs_ << "D=M" << std::endl; // D=M
+                ofs_ << "@" + std::to_string(index) << std::endl; // @index
+                ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
+                ofs_ << "D=M" << std::endl; // D = M
+                stackTopFromComp("D"); // *SP = D
+                incrementSP(); // ++SP
+            }
+            else if (segment == kPOINTER) {
+                ofs_ << "@" + std::to_string(kPOINTER_BASE_ADDRESS + index) << std::endl;
+                ofs_ << "D=M" << std::endl; // D = M
+                stackTopFromComp("D"); // *SP = D
+                incrementSP(); // ++SP
+            }
+            else if (segment == kTEMP) {
+                ofs_ << "@" + std::to_string(kTEMP_BASE_ADDRESS + index) << std::endl;
+                ofs_ << "D=M" << std::endl; // D = M
+                stackTopFromComp("D"); // *SP = D
+                incrementSP(); // ++SP
+            }
+            else if (segment == kSTATIC) {
+                ofs_ << "@" + filename_ + std::to_string(index) << std::endl; // @filename.index
+                ofs_ << "D=M" << std::endl; // D = M
+                stackTopFromComp("D"); // *SP = D
+                incrementSP(); // ++SP
+            }
+            else {
+                assert(false);
+            }
         }
         else if (command == kPOP) {
-
+            if (segment == kLOCAL) {
+                ofs_ << "@LCL" << std::endl;
+                ofs_ << "D=M" << std::endl; // D=M
+                ofs_ << "@" + std::to_string(index) << std::endl; // @index
+                ofs_ << "D=D+A" << std::endl; // D=D+A
+                ofs_ << "@R13" << std::endl;
+                ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
+                decrementSP(); // --SP
+                stackTopToDest('D'); // D = *SP
+                ofs_ << "@R13" << std::endl; // M[R13] = D
+                ofs_ << "A=M" << std::endl;
+                ofs_ << "M=D" << std::endl;
+            }
+            else if (segment == kARGUMENT) {
+                ofs_ << "@ARG" << std::endl;
+                ofs_ << "D=M" << std::endl; // D=M
+                ofs_ << "@" + std::to_string(index) << std::endl; // @index
+                ofs_ << "D=D+A" << std::endl; // D=D+A
+                ofs_ << "@R13" << std::endl;
+                ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
+                decrementSP(); // --SP
+                stackTopToDest('D'); // D = *SP
+                ofs_ << "@R13" << std::endl; // M[R13] = D
+                ofs_ << "A=M" << std::endl;
+                ofs_ << "M=D" << std::endl;
+            }
+            else if (segment == kTHIS) {
+                ofs_ << "@THIS" << std::endl;
+                ofs_ << "D=M" << std::endl; // D=M
+                ofs_ << "@" + std::to_string(index) << std::endl; // @index
+                ofs_ << "D=D+A" << std::endl; // D=D+A
+                ofs_ << "@R13" << std::endl;
+                ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
+                decrementSP(); // --SP
+                stackTopToDest('D'); // D = *SP
+                ofs_ << "@R13" << std::endl; // M[R13] = D
+                ofs_ << "A=M" << std::endl;
+                ofs_ << "M=D" << std::endl;
+            }
+            else if (segment == kTHAT) {
+                ofs_ << "@THAT" << std::endl;
+                ofs_ << "D=M" << std::endl; // D=M
+                ofs_ << "@" + std::to_string(index) << std::endl; // @index
+                ofs_ << "D=D+A" << std::endl; // D=D+A
+                ofs_ << "@R13" << std::endl;
+                ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
+                decrementSP(); // --SP
+                stackTopToDest('D'); // D = *SP
+                ofs_ << "@R13" << std::endl; // M[R13] = D
+                ofs_ << "A=M" << std::endl;
+                ofs_ << "M=D" << std::endl;
+            }
+            else if (segment == kPOINTER) {
+                decrementSP(); // --SP
+                stackTopToDest('D'); // D = *SP
+                ofs_ << "@" << std::to_string(index + kPOINTER_BASE_ADDRESS) << std::endl; // m[index+k] = D
+                ofs_ << "M=D" << std::endl;
+            }
+            else if (segment == kTEMP) {
+                decrementSP(); // --SP
+                stackTopToDest('D'); // D = *SP
+                ofs_ << "@" << std::to_string(index + kTEMP_BASE_ADDRESS) << std::endl; // m[index+k] = D
+                ofs_ << "M=D" << std::endl;
+            }
+            else if (segment == kSTATIC) {
+                decrementSP(); // --SP
+                stackTopToDest('D'); // D = *SP
+                ofs_ << "@" + filename_ + std::to_string(index) << std::endl; // @filename.index
+                ofs_ << "M=D" << std::endl;
+            }
+            else {
+                assert(false);
+            }
         }
         else {
             assert(false);

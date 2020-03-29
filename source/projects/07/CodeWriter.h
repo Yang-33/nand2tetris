@@ -17,6 +17,9 @@ namespace nand2tetris {
     const std::string kPOINTER = "pointer";
     const std::string kTEMP = "temp";
 
+    const int kTEMP_BASE_ADDRESS = 5;
+    const int kPOINTER_BASE_ADDRESS = 3;
+
     class src_EXPORT CodeWriter {
     public:
         // Prepare for writing on |outputfile|.

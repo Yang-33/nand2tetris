@@ -32,6 +32,9 @@ int main(int argc, char* argv[]) {
         else if (current_command_type == nand2tetris::VM_COMMAND_TYPE::C_PUSH) {
             writer.writePushPop(nand2tetris::kPUSH, parser.arg1(), parser.arg2());
         }
+        else if (current_command_type == nand2tetris::VM_COMMAND_TYPE::C_POP) {
+            writer.writePushPop(nand2tetris::kPOP, parser.arg1(), parser.arg2());
+        }
         else {
             assert(false);
         }
