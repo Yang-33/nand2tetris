@@ -5,14 +5,34 @@ Official site: https://www.nand2tetris.org/
 
 Project slide: https://www.nand2tetris.org/course
 
-Appendix C: (test?)
-
-https://github.com/tomyamkum/make_cpu
-
-https://scrapbox.io/Xornet-Blackboard/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%A7%91%E5%AD%A6
-
 https://github.com/y-meguro/nand2tetris/tree/master/projects
 
 https://github.com/alexnhan/nand2tetris/tree/master/projects
 
-https://github.com/davidbrenner/nand2tetris
+## Hack specification
+
+A Register  
+For data register and address register.
+``` c
+// for address register 
+@516 // A=516
+D=M-1
+means
+D = Memory[516] - 1
+
+@sum // A=17 (sum is located in 17 for instance)
+M=0 // initialize
+means 
+sum = 0;
+```
+
+when we use `M`, it refs `A`.
+
+``` c
+// for instruction
+@35 // A=35 (instruction)
+D;JMP
+```
+
+D Register  
+For only deta value.

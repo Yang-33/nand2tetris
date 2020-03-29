@@ -82,7 +82,6 @@ int main(int argc, char* argv[]) {
         std::cerr << __func__ << " needs arguments 2." << std::endl;
         return 1;
     }
-    // TODO(yutakasai): impl 6.3.5
     std::string infilepath = argv[1];
     std::string outfilepath; {
         auto dot_index = infilepath.find_last_of('.');
