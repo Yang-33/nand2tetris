@@ -33,13 +33,24 @@ namespace nand2tetris {
         // Close |outputflie|.
         void close();
     private:
-        void incrementSP();
-        void decrementSP();
-        void stackTopToDest(char AorD);
-        void stackTopFromComp(std::string DorNum);
-        std::string create_new_label();
+        void writeStackTopFromVirtualSegment(const std::string& segment, int index);
+        void writeStackTopFromStaticSegment(int base_address, int index);
+        void writeStackTopToVirtualSegment(const std::string& segment, int index);
+        void writeStackTopToStaticSegment(int base_address, int index);
+
+        void writeBinaryOparation(const std::string& binary_oparation);
+        void writeUnaryOparation(const std::string& unary_oparation);
+        void writeCompOparation(const std::string& jump_code);
+
+        void writeIncrementSP();
+        void writeDecrementSP();
+
+        void writeStackTopToDest(char AorD);
+        void writeStackTopFromComp(std::string DorNum);
+
+        std::string createNewLabel();
         std::ofstream ofs_;
-        // |filename_| is used to create static var. (maybe)
+        // |filename_| is used to create static var.
         std::string filename_;
         int labelid_;
     };

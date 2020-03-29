@@ -16,7 +16,6 @@ namespace nand2tetris {
         auto dot_index = outputfile.find_last_of('.');
         auto last_slash_index = outputfile.find_last_of('/');
         filename_ = outputfile.substr(last_slash_index + 1, dot_index);
-        std::cerr << "filename in CodeWriter is " << filename_ << std::endl;
     }
     // Inform beginning translation a new vm file.
     void CodeWriter::setFileName(const std::string& filename) {
@@ -25,116 +24,109 @@ namespace nand2tetris {
         filename_ = filename.substr(last_slash_index + 1, dot_index);
     }
 
-    std::string CodeWriter::create_new_label() {
+    std::string CodeWriter::createNewLabel() {
         return "LABEL" + std::to_string(labelid_++);
+    }
+    void CodeWriter::writeBinaryOparation(const std::string& binary_oparation) {
+        writeDecrementSP(); // --SP
+        writeStackTopToDest('D'); // D = *SP
+        writeDecrementSP(); // --SP
+        writeStackTopToDest('A'); // A = *SP
+        ofs_ << binary_oparation << std::endl; // D = binary(A,D)
+        writeStackTopFromComp("D"); // *SP = D
+        writeIncrementSP(); // ++SP
+    }
+    void CodeWriter::writeUnaryOparation(const std::string& unary_oparation) {
+        writeDecrementSP(); // --SP
+        writeStackTopToDest('D'); // D = *SP
+        ofs_ << unary_oparation << std::endl; // D = [!-] D
+        writeStackTopFromComp("D"); // *SP = D
+        writeIncrementSP(); // ++SP
+    }
+    void CodeWriter::writeCompOparation(const std::string& jump_code) {
+        writeDecrementSP(); // --SP
+        writeStackTopToDest('D'); // D = *SP
+        writeDecrementSP(); // --SP
+        writeStackTopToDest('A'); // A = *SP
+        ofs_ << "D=A-D" << std::endl; // D = A-D
+        const std::string labelEQ = createNewLabel();
+        const std::string labelNE = createNewLabel();
+        ofs_ << "@" << labelEQ << std::endl; // @label1
+        ofs_ << "D;" + jump_code << std::endl; // D; |jump_code|
+        writeStackTopFromComp("0"); // *SP = 0
+        ofs_ << "@" << labelNE << std::endl; // @label2
+        ofs_ << "0;JMP" << std::endl; // 0;JMP
+        ofs_ << "(" << labelEQ << ")" << std::endl; // label labelEQ
+        writeStackTopFromComp("-1"); // *SP = -1
+        ofs_ << "(" << labelNE << ")" << std::endl; // label labelNE
+        writeIncrementSP(); // ++SP
     }
     // Transform the given arithmetic command into assembly code and write it.
     void CodeWriter::writeArithmetic(const std::string& command) {
         if (command == kARITHMETIC_ADD) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            decrementSP(); // --SP
-            stackTopToDest('A'); // A = *SP
-            ofs_ << "D=A+D" << std::endl; // D = binary(A,D)
-            stackTopFromComp("D"); // *SP = D
-            incrementSP(); // ++SP
+            writeBinaryOparation("D=A+D");
         }
         else if (command == kARITHMETIC_SUB) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            decrementSP(); // --SP
-            stackTopToDest('A'); // A = *SP
-            ofs_ << "D=A-D" << std::endl; // D = binary(A,D)
-            stackTopFromComp("D"); // *SP = D
-            incrementSP(); // ++SP
+            writeBinaryOparation("D=A-D");
         }
         else if (command == kARITHMETIC_NEG) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            ofs_ << "D=-D" << std::endl; // D = -D
-            stackTopFromComp("D"); // *SP = D
-            incrementSP(); // ++SP
+            writeUnaryOparation("D=-D");
         }
         else if (command == kARITHMETIC_EQ) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            decrementSP(); // --SP
-            stackTopToDest('A'); // A = *SP
-            ofs_ << "D=A-D" << std::endl; // D = A-D
-            const std::string labelEQ = create_new_label();
-            const std::string labelNE = create_new_label();
-            ofs_ << "@" << labelEQ << std::endl; // @label1
-            ofs_ << "D;JEQ" << std::endl; // D;JEQ
-            stackTopFromComp("0"); // *SP = 0
-            ofs_ << "@" << labelNE << std::endl; // @label2
-            ofs_ << "0;JMP" << std::endl; // 0;JMP
-            ofs_ << "(" << labelEQ << ")" << std::endl; // label labelEQ
-            stackTopFromComp("-1"); // *SP = -1
-            ofs_ << "(" << labelNE << ")" << std::endl; // label labelNE
-            incrementSP(); // ++SP
+            writeCompOparation("JEQ");
         }
         else if (command == kARITHMETIC_GT) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            decrementSP(); // --SP
-            stackTopToDest('A'); // A = *SP
-            ofs_ << "D=A-D" << std::endl; // D = A-D
-            const std::string labelEQ = create_new_label();
-            const std::string labelNE = create_new_label();
-            ofs_ << "@" << labelEQ << std::endl; // @label1
-            ofs_ << "D;JGT" << std::endl; // D;JGT
-            stackTopFromComp("0"); // *SP = 0
-            ofs_ << "@" << labelNE << std::endl; // @label2
-            ofs_ << "0;JMP" << std::endl; // 0;JMP
-            ofs_ << "(" << labelEQ << ")" << std::endl; // label labelEQ
-            stackTopFromComp("-1"); // *SP = -1
-            ofs_ << "(" << labelNE << ")" << std::endl; // label labelNE
-            incrementSP(); // ++SP
+            writeCompOparation("JGT");
         }
         else if (command == kARITHMETIC_LT) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            decrementSP(); // --SP
-            stackTopToDest('A'); // A = *SP
-            ofs_ << "D=A-D" << std::endl; // D = A-D
-            const std::string labelEQ = create_new_label();
-            const std::string labelNE = create_new_label();
-            ofs_ << "@" << labelEQ << std::endl; // @label1
-            ofs_ << "D;JLT" << std::endl; // D;JLT
-            stackTopFromComp("0"); // *SP = 0
-            ofs_ << "@" << labelNE << std::endl; // @label2
-            ofs_ << "0;JMP" << std::endl; // 0;JMP
-            ofs_ << "(" << labelEQ << ")" << std::endl; // label labelEQ
-            stackTopFromComp("-1"); // *SP = -1
-            ofs_ << "(" << labelNE << ")" << std::endl; // label labelNE
-            incrementSP(); // ++SP
+            writeCompOparation("JLT");
         }
         else if (command == kARITHMETIC_AND) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            decrementSP(); // --SP
-            stackTopToDest('A'); // A = *SP
-            ofs_ << "D=A&D" << std::endl; // D = binary(A,D)
-            stackTopFromComp("D"); // *SP = D
-            incrementSP(); // ++SP
+            writeBinaryOparation("D=A&D");
         }
         else if (command == kARITHMETIC_OR) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            decrementSP(); // --SP
-            stackTopToDest('A'); // A = *SP
-            ofs_ << "D=A|D" << std::endl; // D = binary(A,D)
-            stackTopFromComp("D"); // *SP = D
-            incrementSP(); // ++SP
+            writeBinaryOparation("D=A|D");
         }
         else if (command == kARITHMETIC_NOT) {
-            decrementSP(); // --SP
-            stackTopToDest('D'); // D = *SP
-            ofs_ << "D=!D" << std::endl; // D = !D
-            stackTopFromComp("D"); // *SP = D
-            incrementSP(); // ++SP
+            writeUnaryOparation("D=!D");
         }
     }
+
+    void CodeWriter::writeStackTopFromVirtualSegment(const std::string& segment, int index) {
+        ofs_ << "@" << segment << std::endl;
+        ofs_ << "D=M" << std::endl; // D=M
+        ofs_ << "@" + std::to_string(index) << std::endl; // @index
+        ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
+        ofs_ << "D=M" << std::endl; // D = M
+        writeStackTopFromComp("D"); // *SP = D
+        writeIncrementSP(); // ++SP
+    }
+    void CodeWriter::writeStackTopFromStaticSegment(int base_address, int index) {
+        ofs_ << "@" + std::to_string(base_address + index) << std::endl;
+        ofs_ << "D=M" << std::endl; // D = M
+        writeStackTopFromComp("D"); // *SP = D
+        writeIncrementSP(); // ++SP
+    }
+    void CodeWriter::writeStackTopToVirtualSegment(const std::string& segment, int index) {
+        ofs_ << "@" + segment << std::endl;
+        ofs_ << "D=M" << std::endl; // D=M
+        ofs_ << "@" + std::to_string(index) << std::endl; // @index
+        ofs_ << "D=D+A" << std::endl; // D=D+A
+        ofs_ << "@R13" << std::endl;
+        ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
+        writeDecrementSP(); // --SP
+        writeStackTopToDest('D'); // D = *SP
+        ofs_ << "@R13" << std::endl; // M[R13] = D
+        ofs_ << "A=M" << std::endl;
+        ofs_ << "M=D" << std::endl;
+    }
+    void CodeWriter::writeStackTopToStaticSegment(int base_address, int index) {
+        writeDecrementSP(); // --SP
+        writeStackTopToDest('D'); // D = *SP
+        ofs_ << "@" << std::to_string(index + base_address) << std::endl; // m[index+k] = D
+        ofs_ << "M=D" << std::endl;
+    }
+
     // Transform |C_PUSH| or |C_POP| into assembly code and write it.
     void CodeWriter::writePushPop(
         const std::string& command, const std::string& segment, int index) {
@@ -142,62 +134,32 @@ namespace nand2tetris {
             if (segment == kCONSTANT) {
                 ofs_ << "@" << index << std::endl; // @index
                 ofs_ << "D=A" << std::endl; // D = A
-                stackTopFromComp("D"); // *SP = D
-                incrementSP(); // ++SP
+                writeStackTopFromComp("D"); // *SP = D
+                writeIncrementSP(); // ++SP
             }
             else if (segment == kLOCAL) {
-                ofs_ << "@LCL" << std::endl;
-                ofs_ << "D=M" << std::endl; // D=M
-                ofs_ << "@" + std::to_string(index) << std::endl; // @index
-                ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
-                ofs_ << "D=M" << std::endl; // D = M
-                stackTopFromComp("D"); // *SP = D
-                incrementSP(); // ++SP
+                writeStackTopFromVirtualSegment("LCL", index);
             }
             else if (segment == kARGUMENT) {
-                ofs_ << "@ARG" << std::endl;
-                ofs_ << "D=M" << std::endl; // D=M
-                ofs_ << "@" + std::to_string(index) << std::endl; // @index
-                ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
-                ofs_ << "D=M" << std::endl; // D = M
-                stackTopFromComp("D"); // *SP = D
-                incrementSP(); // ++SP
+                writeStackTopFromVirtualSegment("ARG", index);
             }
             else if (segment == kTHIS) {
-                ofs_ << "@THIS" << std::endl;
-                ofs_ << "D=M" << std::endl; // D=M
-                ofs_ << "@" + std::to_string(index) << std::endl; // @index
-                ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
-                ofs_ << "D=M" << std::endl; // D = M
-                stackTopFromComp("D"); // *SP = D
-                incrementSP(); // ++SP
+                writeStackTopFromVirtualSegment("THIS", index);
             }
             else if (segment == kTHAT) {
-                ofs_ << "@THAT" << std::endl;
-                ofs_ << "D=M" << std::endl; // D=M
-                ofs_ << "@" + std::to_string(index) << std::endl; // @index
-                ofs_ << "A=D+A" << std::endl; // A = D+A // indexed segment by |index|
-                ofs_ << "D=M" << std::endl; // D = M
-                stackTopFromComp("D"); // *SP = D
-                incrementSP(); // ++SP
+                writeStackTopFromVirtualSegment("THAT", index);
             }
             else if (segment == kPOINTER) {
-                ofs_ << "@" + std::to_string(kPOINTER_BASE_ADDRESS + index) << std::endl;
-                ofs_ << "D=M" << std::endl; // D = M
-                stackTopFromComp("D"); // *SP = D
-                incrementSP(); // ++SP
+                writeStackTopFromStaticSegment(kPOINTER_BASE_ADDRESS, index);
             }
             else if (segment == kTEMP) {
-                ofs_ << "@" + std::to_string(kTEMP_BASE_ADDRESS + index) << std::endl;
-                ofs_ << "D=M" << std::endl; // D = M
-                stackTopFromComp("D"); // *SP = D
-                incrementSP(); // ++SP
+                writeStackTopFromStaticSegment(kTEMP_BASE_ADDRESS, index);
             }
             else if (segment == kSTATIC) {
                 ofs_ << "@" + filename_ + std::to_string(index) << std::endl; // @filename.index
                 ofs_ << "D=M" << std::endl; // D = M
-                stackTopFromComp("D"); // *SP = D
-                incrementSP(); // ++SP
+                writeStackTopFromComp("D"); // *SP = D
+                writeIncrementSP(); // ++SP
             }
             else {
                 assert(false);
@@ -205,72 +167,26 @@ namespace nand2tetris {
         }
         else if (command == kPOP) {
             if (segment == kLOCAL) {
-                ofs_ << "@LCL" << std::endl;
-                ofs_ << "D=M" << std::endl; // D=M
-                ofs_ << "@" + std::to_string(index) << std::endl; // @index
-                ofs_ << "D=D+A" << std::endl; // D=D+A
-                ofs_ << "@R13" << std::endl;
-                ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
-                decrementSP(); // --SP
-                stackTopToDest('D'); // D = *SP
-                ofs_ << "@R13" << std::endl; // M[R13] = D
-                ofs_ << "A=M" << std::endl;
-                ofs_ << "M=D" << std::endl;
+                writeStackTopToVirtualSegment("LCL", index);
             }
             else if (segment == kARGUMENT) {
-                ofs_ << "@ARG" << std::endl;
-                ofs_ << "D=M" << std::endl; // D=M
-                ofs_ << "@" + std::to_string(index) << std::endl; // @index
-                ofs_ << "D=D+A" << std::endl; // D=D+A
-                ofs_ << "@R13" << std::endl;
-                ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
-                decrementSP(); // --SP
-                stackTopToDest('D'); // D = *SP
-                ofs_ << "@R13" << std::endl; // M[R13] = D
-                ofs_ << "A=M" << std::endl;
-                ofs_ << "M=D" << std::endl;
+                writeStackTopToVirtualSegment("ARG", index);
             }
             else if (segment == kTHIS) {
-                ofs_ << "@THIS" << std::endl;
-                ofs_ << "D=M" << std::endl; // D=M
-                ofs_ << "@" + std::to_string(index) << std::endl; // @index
-                ofs_ << "D=D+A" << std::endl; // D=D+A
-                ofs_ << "@R13" << std::endl;
-                ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
-                decrementSP(); // --SP
-                stackTopToDest('D'); // D = *SP
-                ofs_ << "@R13" << std::endl; // M[R13] = D
-                ofs_ << "A=M" << std::endl;
-                ofs_ << "M=D" << std::endl;
+                writeStackTopToVirtualSegment("THIS", index);
             }
             else if (segment == kTHAT) {
-                ofs_ << "@THAT" << std::endl;
-                ofs_ << "D=M" << std::endl; // D=M
-                ofs_ << "@" + std::to_string(index) << std::endl; // @index
-                ofs_ << "D=D+A" << std::endl; // D=D+A
-                ofs_ << "@R13" << std::endl;
-                ofs_ << "M=D" << std::endl; // M=D // save segment[index] to R13
-                decrementSP(); // --SP
-                stackTopToDest('D'); // D = *SP
-                ofs_ << "@R13" << std::endl; // M[R13] = D
-                ofs_ << "A=M" << std::endl;
-                ofs_ << "M=D" << std::endl;
+                writeStackTopToVirtualSegment("THAT", index);
             }
             else if (segment == kPOINTER) {
-                decrementSP(); // --SP
-                stackTopToDest('D'); // D = *SP
-                ofs_ << "@" << std::to_string(index + kPOINTER_BASE_ADDRESS) << std::endl; // m[index+k] = D
-                ofs_ << "M=D" << std::endl;
+                writeStackTopToStaticSegment(kPOINTER_BASE_ADDRESS, index);
             }
             else if (segment == kTEMP) {
-                decrementSP(); // --SP
-                stackTopToDest('D'); // D = *SP
-                ofs_ << "@" << std::to_string(index + kTEMP_BASE_ADDRESS) << std::endl; // m[index+k] = D
-                ofs_ << "M=D" << std::endl;
+                writeStackTopToStaticSegment(kTEMP_BASE_ADDRESS, index);
             }
             else if (segment == kSTATIC) {
-                decrementSP(); // --SP
-                stackTopToDest('D'); // D = *SP
+                writeDecrementSP(); // --SP
+                writeStackTopToDest('D'); // D = *SP
                 ofs_ << "@" + filename_ + std::to_string(index) << std::endl; // @filename.index
                 ofs_ << "M=D" << std::endl;
             }
@@ -283,20 +199,20 @@ namespace nand2tetris {
         }
     }
 
-    void CodeWriter::incrementSP() {
+    void CodeWriter::writeIncrementSP() {
         ofs_ << "@SP" << std::endl;
         ofs_ << "M=M+1" << std::endl;
     }
-    void CodeWriter::decrementSP() {
+    void CodeWriter::writeDecrementSP() {
         ofs_ << "@SP" << std::endl;
         ofs_ << "M=M-1" << std::endl;
     }
-    void CodeWriter::stackTopToDest(char AorD) {
+    void CodeWriter::writeStackTopToDest(char AorD) {
         ofs_ << "@SP" << std::endl;
         ofs_ << "A=M" << std::endl;
         ofs_ << std::string(1, AorD) + "=M" << std::endl;
     }
-    void CodeWriter::stackTopFromComp(std::string DorNum) {
+    void CodeWriter::writeStackTopFromComp(std::string DorNum) {
         ofs_ << "@SP" << std::endl;
         ofs_ << "A=M" << std::endl;
         ofs_ << "M=" << DorNum << std::endl;
