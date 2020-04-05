@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Memory.tst needs GUI since it needs input from a keyboard.
-
 status=0
 for f in \
 source/projects/07/StackArithmetic/SimpleAdd/SimpleAdd \

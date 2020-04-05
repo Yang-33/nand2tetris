@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Memory.tst needs GUI since it needs input from a keyboard.
-
 status=0
 for f in \
 source/projects/08/ProgramFlow/BasicLoop/BasicLoop \
@@ -17,7 +15,25 @@ do
   fi
 done
 
+# FunctionCalls/NestedCall
+./build/bin/VMtranslator-all source/projects/08/FunctionCalls/NestedCall
+sh external/tools/CPUEmulator.sh source/projects/08/FunctionCalls/NestedCall/NestedCall.tst
+if [ $? -ne 0 ]; then
+  status=1
+fi
 
-## TODO: Add FunctionCalls
+# FunctionCalls/FibonacciElement
+./build/bin/VMtranslator-all source/projects/08/FunctionCalls/FibonacciElement
+sh external/tools/CPUEmulator.sh source/projects/08/FunctionCalls/FibonacciElement/FibonacciElement.tst
+if [ $? -ne 0 ]; then
+  status=1
+fi
+
+# StaticsTest
+./build/bin/VMtranslator-all source/projects/08/FunctionCalls/StaticsTest
+sh external/tools/CPUEmulator.sh source/projects/08/FunctionCalls/StaticsTest/StaticsTest.tst
+if [ $? -ne 0 ]; then
+  status=1
+fi
 
 exit $status

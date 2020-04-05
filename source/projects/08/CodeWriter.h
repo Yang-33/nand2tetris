@@ -59,10 +59,13 @@ namespace nand2tetris {
 
         std::string createSymbolFromLabel(const std::string& label);
         std::string createNewLabel();
+        std::string createNewReturnLabel();
+
         std::ofstream ofs_;
         // |filename_| is used to create static var.
         std::string filename_;
         int labelid_;
+        int return_labelid_;
         std::string current_function_name_;
     };
 }  // namespace nand2tetris

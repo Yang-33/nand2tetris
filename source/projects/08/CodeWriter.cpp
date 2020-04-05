@@ -12,7 +12,7 @@
 
 namespace nand2tetris {
     CodeWriter::CodeWriter(const std::string& outputfile) :
-        ofs_(outputfile), filename_(""), labelid_(0) {
+        ofs_(outputfile), filename_(""), labelid_(0), return_labelid_(0), current_function_name_("") {
         auto dot_index = outputfile.find_last_of('.');
         auto last_slash_index = outputfile.find_last_of('/');
         filename_ = outputfile.substr(last_slash_index + 1, dot_index);
@@ -26,14 +26,14 @@ namespace nand2tetris {
 
 
     void CodeWriter::writeInit() {
-        //// SP = 256
-        //ofs_ << "@256" << std::endl;
-        //ofs_ << "D=A" << std::endl;
-        //ofs_ << "@SP" << std::endl;
-        //ofs_ << "M=D" << std::endl;
+        // SP = 256
+        ofs_ << "@256" << std::endl;
+        ofs_ << "D=A" << std::endl;
+        ofs_ << "@SP" << std::endl;
+        ofs_ << "M=D" << std::endl;
 
-        //// call Sys.init
-        //writeCall("Sys.init", 0);
+        // call Sys.init
+        writeCall("Sys.init", 0);
     }
 
     std::string CodeWriter::createSymbolFromLabel(const std::string& label) {
@@ -63,7 +63,7 @@ namespace nand2tetris {
 
     void CodeWriter::writeCall(const std::string& function_name, int num_args) {
         // push return-address
-        std::string return_label = createNewLabel();
+        std::string return_label = createNewReturnLabel();
         ofs_ << "@" << return_label << std::endl;
         ofs_ << "D=A" << std::endl;
         writeStackTopFromComp("D"); // *SP = return-address
@@ -111,10 +111,11 @@ namespace nand2tetris {
 
 
         // goto f
-        writeGoto(function_name);
+        ofs_ << "@" << function_name << std::endl;
+        ofs_ << "0;JMP" << std::endl;
 
         // (return-address)
-        writeLabel(return_label);
+        ofs_ << "(" + return_label << ")" << std::endl;
     }
     void CodeWriter::writeReturn() {
 
@@ -189,9 +190,11 @@ namespace nand2tetris {
             writeIncrementSP(); // ++SP
         }
     }
-
+    std::string CodeWriter::createNewReturnLabel() {
+        return "RETURNLABEL" + std::to_string(return_labelid_++);
+    }
     std::string CodeWriter::createNewLabel() {
-        return "LABEL" + std::to_string(labelid_++);
+        return "IFLABEL" + std::to_string(labelid_++);
     }
     void CodeWriter::writeBinaryOparation(const std::string& binary_oparation) {
         writeDecrementSP(); // --SP
