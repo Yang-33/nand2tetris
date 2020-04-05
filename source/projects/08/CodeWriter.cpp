@@ -25,26 +25,169 @@ namespace nand2tetris {
     }
 
 
-    void writeInit() {
-        // TODO: impl it.
+    void CodeWriter::writeInit() {
+        //// SP = 256
+        //ofs_ << "@256" << std::endl;
+        //ofs_ << "D=A" << std::endl;
+        //ofs_ << "@SP" << std::endl;
+        //ofs_ << "M=D" << std::endl;
+
+        //// call Sys.init
+        //writeCall("Sys.init", 0);
     }
-    void writeLabel(const std::string& label) {
-        // TODO: impl it.
+
+    std::string CodeWriter::createSymbolFromLabel(const std::string& label) {
+        if (current_function_name_.size()) {
+            return current_function_name_ + "$" + label;
+        }
+        else {
+            return "null$" + label;// ?
+        }
     }
-    void writeGoto(const std::string& label) {
-        // TODO: impl it.
+    void CodeWriter::writeLabel(const std::string& label) {
+        ofs_ << "(" << createSymbolFromLabel(label) << ")" << std::endl;
     }
-    void writeIf(const std::string& label) {
-        // TODO: impl it.
+    void CodeWriter::writeGoto(const std::string& label) {
+        // Goto |label|.
+        ofs_ << "@" << createSymbolFromLabel(label) << std::endl; // @?func.label
+        ofs_ << "0;JMP" << std::endl;
     }
-    void writeCall(const std::string& function_name, int num_args) {
-        // TODO: impl it.
+    void CodeWriter::writeIf(const std::string& label) {
+        // Look at top of the stack.
+        // If True, goto |label|
+        writeDecrementSP(); // --SP;
+        writeStackTopToDest('D'); // D = *SP;
+        ofs_ << "@" << createSymbolFromLabel(label) << std::endl; // @?func.label
+        ofs_ << "D;JNE" << std::endl; // D;JNE
     }
-    void writeReturn() {
-        // TODO: impl it.
+
+    void CodeWriter::writeCall(const std::string& function_name, int num_args) {
+        // push return-address
+        std::string return_label = createNewLabel();
+        ofs_ << "@" << return_label << std::endl;
+        ofs_ << "D=A" << std::endl;
+        writeStackTopFromComp("D"); // *SP = return-address
+        writeIncrementSP(); // ++SP
+
+        // push LCL
+        ofs_ << "@LCL" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        writeStackTopFromComp("D"); // *SP = LCL
+        writeIncrementSP(); // ++SP
+
+        // push ARG
+        ofs_ << "@ARG" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        writeStackTopFromComp("D"); // *SP = ARG
+        writeIncrementSP(); // ++SP
+
+        // push THIS
+        ofs_ << "@THIS" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        writeStackTopFromComp("D"); // *SP = THIS
+        writeIncrementSP(); // ++SP
+
+        // push THAT
+        ofs_ << "@THAT" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        writeStackTopFromComp("D"); // *SP = THAT
+        writeIncrementSP(); // ++SP
+
+        // ARG = SP - n - 5
+        ofs_ << "@SP" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        ofs_ << "@5" << std::endl;
+        ofs_ << "D=D-A" << std::endl;
+        ofs_ << "@" << std::to_string(num_args) << std::endl;
+        ofs_ << "D=D-A" << std::endl;
+        ofs_ << "@ARG" << std::endl;
+        ofs_ << "M=D" << std::endl;
+
+        // LCL = SP
+        ofs_ << "@SP" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        ofs_ << "@LCL" << std::endl;
+        ofs_ << "M=D" << std::endl;
+
+
+        // goto f
+        writeGoto(function_name);
+
+        // (return-address)
+        writeLabel(return_label);
     }
-    void writeFunction(const std::string& function_name, int num_locals) {
-        // TODO: impl it.
+    void CodeWriter::writeReturn() {
+
+        // FRAME = LCL
+        ofs_ << "@LCL" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        ofs_ << "@R13" << std::endl;
+        ofs_ << "M=D" << std::endl; // R13 = FRAME = LCL
+
+        // RET = *(FRAME-5)
+        ofs_ << "@5" << std::endl;
+        ofs_ << "A=D-A" << std::endl; // FRAME-5
+        ofs_ << "D=M" << std::endl; // D = M[R13-5]
+        ofs_ << "@R14" << std::endl;
+        ofs_ << "M=D" << std::endl; // R14 = M[R13-5]
+
+        // *ARG = pop()
+        writeDecrementSP(); // --SP
+        writeStackTopToDest('D');
+        ofs_ << "@ARG" << std::endl;
+        ofs_ << "A=M" << std::endl;
+        ofs_ << "M=D" << std::endl;
+
+        // SP = ARG+1
+        ofs_ << "D=A" << std::endl;
+        ofs_ << "@SP" << std::endl;
+        ofs_ << "M=D+1" << std::endl;
+
+        // THAT = *(FRAME-1)
+        ofs_ << "@R13" << std::endl;
+        ofs_ << "M=M-1" << std::endl;
+        ofs_ << "A=M" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        ofs_ << "@THAT" << std::endl;
+        ofs_ << "M=D" << std::endl;
+
+        // THIS = *(FRAME-2)
+        ofs_ << "@R13" << std::endl;
+        ofs_ << "M=M-1" << std::endl;
+        ofs_ << "A=M" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        ofs_ << "@THIS" << std::endl;
+        ofs_ << "M=D" << std::endl;
+
+        // ARG = *(FRAME-3)
+        ofs_ << "@R13" << std::endl;
+        ofs_ << "M=M-1" << std::endl;
+        ofs_ << "A=M" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        ofs_ << "@ARG" << std::endl;
+        ofs_ << "M=D" << std::endl;
+
+        // LCL = *(FRAME-4)
+        ofs_ << "@R13" << std::endl;
+        ofs_ << "M=M-1" << std::endl;
+        ofs_ << "A=M" << std::endl;
+        ofs_ << "D=M" << std::endl;
+        ofs_ << "@LCL" << std::endl;
+        ofs_ << "M=D" << std::endl;
+
+        // goto RET
+        ofs_ << "@R14" << std::endl;
+        ofs_ << "A=M" << std::endl; // load
+        ofs_ << "0;JMP" << std::endl;
+    }
+    void CodeWriter::writeFunction(const std::string& function_name, int num_locals) {
+        current_function_name_ = function_name;
+        ofs_ << "(" << current_function_name_ << ")" << std::endl;
+        ofs_ << "D=0" << std::endl;
+        for (int i = 0; i < num_locals; ++i) {
+            writeStackTopFromComp("D"); // *SP = D
+            writeIncrementSP(); // ++SP
+        }
     }
 
     std::string CodeWriter::createNewLabel() {
@@ -76,11 +219,11 @@ namespace nand2tetris {
         const std::string labelNE = createNewLabel();
         ofs_ << "@" << labelEQ << std::endl; // @label1
         ofs_ << "D;" + jump_code << std::endl; // D; |jump_code|
-        writeStackTopFromComp("0"); // *SP = 0
+        writeStackTopFromComp("0"); // *SP = 0 : False
         ofs_ << "@" << labelNE << std::endl; // @label2
         ofs_ << "0;JMP" << std::endl; // 0;JMP
         ofs_ << "(" << labelEQ << ")" << std::endl; // label labelEQ
-        writeStackTopFromComp("-1"); // *SP = -1
+        writeStackTopFromComp("-1"); // *SP = -1 : True
         ofs_ << "(" << labelNE << ")" << std::endl; // label labelNE
         writeIncrementSP(); // ++SP
     }
@@ -179,7 +322,7 @@ namespace nand2tetris {
                 writeStackTopFromStaticSegment(kTEMP_BASE_ADDRESS, index);
             }
             else if (segment == kSTATIC) {
-                ofs_ << "@" + filename_ + std::to_string(index) << std::endl; // @filename.index
+                ofs_ << "@" + filename_ + "." + std::to_string(index) << std::endl; // @filename.index
                 ofs_ << "D=M" << std::endl; // D = M
                 writeStackTopFromComp("D"); // *SP = D
                 writeIncrementSP(); // ++SP
@@ -210,7 +353,7 @@ namespace nand2tetris {
             else if (segment == kSTATIC) {
                 writeDecrementSP(); // --SP
                 writeStackTopToDest('D'); // D = *SP
-                ofs_ << "@" + filename_ + std::to_string(index) << std::endl; // @filename.index
+                ofs_ << "@" + filename_ + "." + std::to_string(index) << std::endl; // @filename.index
                 ofs_ << "M=D" << std::endl;
             }
             else {

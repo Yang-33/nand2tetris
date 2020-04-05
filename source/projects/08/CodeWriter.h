@@ -57,11 +57,13 @@ namespace nand2tetris {
         void writeStackTopToDest(char AorD);
         void writeStackTopFromComp(std::string DorNum);
 
+        std::string createSymbolFromLabel(const std::string& label);
         std::string createNewLabel();
         std::ofstream ofs_;
         // |filename_| is used to create static var.
         std::string filename_;
         int labelid_;
+        std::string current_function_name_;
     };
 }  // namespace nand2tetris
 
