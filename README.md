@@ -15,31 +15,4 @@ https://github.com/benvenutti/nand2tetris/blob/master/08%20-%20vm%202/vmTranslat
 
 https://github.com/ikenox/nand2tetris/blob/master/08/vm_translater/code_writer.py
 
-
-## Hack specification
-
-A Register  
-For data register and address register.
-``` c
-// for address register 
-@516 // A=516
-D=M-1
-means
-D = Memory[516] - 1
-
-@sum // A=17 (sum is located in 17 for instance)
-M=0 // initialize
-means 
-sum = 0;
-```
-
-when we use `M`, it refs `A`.
-
-``` c
-// for instruction
-@35 // A=35 (instruction)
-D;JMP
-```
-
-D Register  
-For only deta value.
+https://github.com/wustladela/Nand2Tetris-tetris.jack

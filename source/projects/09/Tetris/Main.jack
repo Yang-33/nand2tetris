@@ -1,0 +1,475 @@
+class Main {
+    static int TOP, LEFT, H, W, BLOCK, rand, speed;
+    static Array ss_bg, ss_buf, ss_now, ss_try, ss_next, ss_tmp;
+    static Array sss_blocks;
+
+    function void main() {
+        let TOP = 1;
+        let LEFT = 26;
+        let H = 22;
+        let W = 12;
+        let BLOCK = 4;
+        let speed = 150;  // environment dependent
+        let ss_buf = Main.createField();
+        let ss_bg  = Main.createField();
+        let sss_blocks = Main.createBlocks();
+        let ss_now  = Main.createEmptyBlock();
+        let ss_try  = Main.createEmptyBlock();
+        let ss_next = Main.createEmptyBlock();
+        let ss_tmp  = Main.createEmptyBlock();
+        do Output.moveCursor(1, 0);
+        do Main.println(" CONTROLS:");
+        do Main.println("   Left key: move left");
+        do Main.println("   Right key: move right");
+        do Main.println("   Z key: rotate left");
+        do Main.println("   X key: rotate right");
+        do Main.println("   Down key: drop");
+        do Output.moveCursor(1, 40);
+        do Main.print("Level: ");
+        do Output.moveCursor(2, 40);
+        do Main.print("Score: ");
+        do Output.moveCursor(6, 40);
+        do Main.print("Next: ");
+        do Main.setNext();
+        do Main.copyBlock(ss_next, ss_now);
+        do Main.setNext();
+        do Main.loop();
+        return;
+    }
+
+    function void loop() {
+        var boolean is_update, is_collided, is_over;
+        var int time, time_k;
+        var int zero, x, y, key, key_prev;
+        var int level, score;
+        let zero = 0;
+        let is_update = true;
+        let y = 1;
+
+        while (true) {
+            if (time = 0) {
+                let key = zero[24576];
+
+                if (key = 0) {
+                    let key_prev = 0;
+                } else {
+                    if (key = 130) {  // Left key.
+                        if (~(key_prev = 130)) {
+                            if (~Main.mergeField(ss_bg, H, ss_now, BLOCK, y, x - 1, true)) {
+                                let x = x - 1;
+                            }
+
+                            let is_update = true;
+                            let key_prev = 130;
+                        }
+                    }
+
+                    if (key = 132) {  // Right key.
+                        if (~(key_prev = 132)) {
+                            if (~Main.mergeField(ss_bg, H, ss_now, BLOCK, y, x + 1, true)) {
+                                let x = x + 1;
+                            }
+
+                            let is_update = true;
+                            let key_prev = 132;
+                        }
+                    }
+
+                    if (key = 90) {  // Z key.
+                        if (~(key_prev = 90)) {
+                            do Main.copyBlock(ss_now, ss_try);
+                            do Main.rotateLeft(ss_try);
+
+                            if (~Main.mergeField(ss_bg, H, ss_try, BLOCK, y, x, true)) {
+                                do Main.copyBlock(ss_try, ss_now);
+                            }
+
+                            let is_update = true;
+                            let key_prev = 90;
+                        }
+                    }
+
+                    if (key = 88) {  // X key.
+                        if (~(key_prev = 88)) {
+                            do Main.copyBlock(ss_now, ss_try);
+                            do Main.rotateRight(ss_try);
+
+                            if (~Main.mergeField(ss_bg, H, ss_try, BLOCK, y, x, true)) {
+                                do Main.copyBlock(ss_try, ss_now);
+                            }
+
+                            let is_update = true;
+                            let key_prev = 88;
+                        }
+                    }
+
+                    if (key = 133) {  // Down key.
+                        if (~(key_prev = 133)) {
+                            while (~Main.mergeField(ss_bg, H, ss_now, BLOCK, y + 1, x, true)) {
+                                let y = y + 1;
+                                let time_k = 0;
+                            }
+
+                            let is_update = true;
+                            let key_prev = 133;
+                        }
+                    }
+                }
+
+                if (Main.modulo(time_k, speed) = (speed - 1)) {  // Falls the block.
+                    if (Main.mergeField(ss_bg, H, ss_now, BLOCK, y + 1, x, true)) {
+                        do Main.mergeField(ss_bg, H, ss_now, BLOCK, y, x, false);
+                        let x = 0;
+                        let y = 1;
+                        let score = score + Main.updateLines();
+
+                        if (~(level = (score / 3))) {  // Levels up.
+                            let speed = (speed * 9) / 10;
+                        }
+
+                        let level = score / 3;
+                        let time_k = 0;
+                        do Main.copyBlock(ss_next, ss_now);
+
+                        if (Main.mergeField(ss_bg, H, ss_now, BLOCK, y, x, true)) {  // Game over.
+                            let is_over = true;
+                            do Output.moveCursor(0, 27);
+                            do Output.printString("GAME  OVER");
+                        } else {
+                            do Main.setNext();
+                        }
+                    } else {
+                        let y = y + 1;
+                    }
+
+                    let is_update = true;
+                }
+
+                if (is_update) {  // Updates graphics.
+                    do Main.clearField(ss_buf, H);
+                    do Main.mergeField(ss_buf, H, ss_bg, H, 0, 0, false);
+                    do Main.mergeField(ss_buf, H, ss_now, BLOCK, y, x, false);
+                    do Main.printStrings(TOP, LEFT, ss_buf, H);
+                    do Output.moveCursor(1, 47);
+                    do Output.printInt(level);
+                    do Output.moveCursor(2, 47);
+                    do Output.printInt(score);
+                    while (is_over) {}
+                    let is_update = false;
+                }
+            }
+
+            let time = time + 1;
+
+            if (time = 1000) {
+                let time_k = time_k + 1;
+                let time = 0;
+
+                if (time_k = 1000) {
+                    let time_k = 0;
+                }
+            }
+        }
+
+        return;
+    }
+
+    function int modulo(int x, int y) {  // Returns x % y.
+        return x - ((x / y) * y);
+    }
+
+    function int random() {  // Returns a random number of 16-bit.
+        let rand = (rand * 12343) + 12347;  // Naive implementation.
+        return rand;
+    }
+
+    function int randomInt(int n) {  // Returns a random number < n.
+        // Disposes the lowest decimal for a little better randomness.
+        return Math.abs(Main.modulo(Main.random() / 10, n));
+    }
+
+    function void setNext() {
+        var int i;
+        do Main.copyBlock(sss_blocks[Main.randomInt(7)], ss_next);
+        let i = Main.randomInt(4);
+
+        while (i > 0) {
+            do Main.rotateLeft(ss_next);
+            let i = i - 1;
+        }
+
+        do Main.printStrings(8, 43, ss_next, 4);
+        return;
+    }
+
+    function void testRandom() {
+        var int i;
+        do Output.moveCursor(0, 0);
+
+        while (i < 100) {
+            do Output.printInt(Main.randomInt(10));
+            do Output.printString(", ");
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    function void fillString(String s, char c) {  // Fills s with c.
+        var int i, len;
+        let len = s.length();
+
+        while (i < len) {
+                do s.setCharAt(i, c);
+                let i = i + 1;
+        }
+
+        return;
+    }
+
+    function void print(String s) {  // Prints s, then disposes s.
+        do Output.printString(s);
+        do s.dispose();
+        return;
+    }
+
+    function void println(String s) {  // Prints s and a newline.
+        do Main.print(s);
+        do Output.println();
+        return;
+    }
+
+    function void clearField(Array ss, int len) {  // Fills strings with spaces.
+        var int i;
+
+        while (i < len) {
+            do Main.fillString(ss[i], 32);
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    // Overwrites ss1 with ss2 if is_try = false.
+    // Detects their collision if is_try = true.
+    function boolean mergeField(Array ss1, int len1, Array ss2, int len2, int row, int col, boolean is_try) {
+        var char ch;
+        var int r, c, len_s2;
+        var String s1, s2;
+
+        while (r < len2) {  // For each lines.
+            let s1 = ss1[row + r];
+            let s2 = ss2[r];
+            let len_s2 = s2.length();
+            let c = 0;
+
+            while (c < len_s2) {  // For each characters.
+                let ch = s2.charAt(c);
+
+                if (~(ch = 32)) {  // Not a space.
+                    if (is_try) {
+                        if ((col + c) < 0 | (col + c) > 11) {  // Out of bounds.
+                            return true;
+                        }
+
+                        if (~(s1.charAt(col + c) = 32)) {  // Dst is not a space.
+                            return true;
+                        }
+                    } else {
+                        do s1.setCharAt(col + c, ch);  // Overwrites.
+                    }
+                }
+
+                let c = c + 1;
+            }
+
+            let r = r + 1;
+        }
+
+        return false;
+    }
+
+    // Prints ss at row, col.
+    function void printStrings(int row, int col, Array ss, int len) {
+        var int i;
+
+        while (i < len) {
+            do Output.moveCursor(row + i, col);
+            do Output.printString(ss[i]);
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    function Array createField() {  // Creates H * W cells.
+        var Array a;
+        var int i;
+        let a = Array.new(H);
+
+        while (i < H) {
+            let a[i] = "#          #";
+            let i = i + 1;
+        }
+
+        do Main.fillString(a[0], 35);
+        do Main.fillString(a[H - 1], 35);
+        return a;
+    }
+
+    function Array createBlock(String s0, String s1, String s2, String s3) {
+        var Array ss;
+        let ss = Array.new(4);
+        let ss[0] = s0;
+        let ss[1] = s1;
+        let ss[2] = s2;
+        let ss[3] = s3;
+        return ss;
+    }
+
+    function Array createEmptyBlock() {
+        return Main.createBlock("            ",
+                                "            ",
+                                "            ",
+                                "            ");
+    }
+
+    function Array createBlocks() {
+        var Array sss;
+        let sss = Array.new(7);
+        let sss[0] = Main.createBlock("      #     ",
+                                      "      #     ",
+                                      "      #     ",
+                                      "      #     ");
+        let sss[1] = Main.createBlock("      #     ",
+                                      "      #     ",
+                                      "     ##     ",
+                                      "            ");
+        let sss[2] = Main.createBlock("     #      ",
+                                      "     #      ",
+                                      "     ##     ",
+                                      "            ");
+        let sss[3] = Main.createBlock("      #     ",
+                                      "     ##     ",
+                                      "     #      ",
+                                      "            ");
+        let sss[4] = Main.createBlock("     #      ",
+                                      "     ##     ",
+                                      "      #     ",
+                                      "            ");
+        let sss[5] = Main.createBlock("      #     ",
+                                      "     ##     ",
+                                      "      #     ",
+                                      "            ");
+        let sss[6] = Main.createBlock("            ",
+                                      "     ##     ",
+                                      "     ##     ",
+                                      "            ");
+        return sss;
+    }
+
+    function void copyBlock(Array a, Array b) {
+        do String.setCharAt(b[0], 4, String.charAt(a[0], 4));
+        do String.setCharAt(b[0], 5, String.charAt(a[0], 5));
+        do String.setCharAt(b[0], 6, String.charAt(a[0], 6));
+        do String.setCharAt(b[0], 7, String.charAt(a[0], 7));
+        do String.setCharAt(b[1], 4, String.charAt(a[1], 4));
+        do String.setCharAt(b[1], 5, String.charAt(a[1], 5));
+        do String.setCharAt(b[1], 6, String.charAt(a[1], 6));
+        do String.setCharAt(b[1], 7, String.charAt(a[1], 7));
+        do String.setCharAt(b[2], 4, String.charAt(a[2], 4));
+        do String.setCharAt(b[2], 5, String.charAt(a[2], 5));
+        do String.setCharAt(b[2], 6, String.charAt(a[2], 6));
+        do String.setCharAt(b[2], 7, String.charAt(a[2], 7));
+        do String.setCharAt(b[3], 4, String.charAt(a[3], 4));
+        do String.setCharAt(b[3], 5, String.charAt(a[3], 5));
+        do String.setCharAt(b[3], 6, String.charAt(a[3], 6));
+        do String.setCharAt(b[3], 7, String.charAt(a[3], 7));
+        return;
+    }
+
+    function void rotateLeft(Array ss) {
+        do String.setCharAt(ss_tmp[0], 4, String.charAt(ss[0], 7));
+        do String.setCharAt(ss_tmp[0], 5, String.charAt(ss[1], 7));
+        do String.setCharAt(ss_tmp[0], 6, String.charAt(ss[2], 7));
+        do String.setCharAt(ss_tmp[0], 7, String.charAt(ss[3], 7));
+        do String.setCharAt(ss_tmp[1], 4, String.charAt(ss[0], 6));
+        do String.setCharAt(ss_tmp[1], 5, String.charAt(ss[1], 6));
+        do String.setCharAt(ss_tmp[1], 6, String.charAt(ss[2], 6));
+        do String.setCharAt(ss_tmp[1], 7, String.charAt(ss[3], 6));
+        do String.setCharAt(ss_tmp[2], 4, String.charAt(ss[0], 5));
+        do String.setCharAt(ss_tmp[2], 5, String.charAt(ss[1], 5));
+        do String.setCharAt(ss_tmp[2], 6, String.charAt(ss[2], 5));
+        do String.setCharAt(ss_tmp[2], 7, String.charAt(ss[3], 5));
+        do String.setCharAt(ss_tmp[3], 4, String.charAt(ss[0], 4));
+        do String.setCharAt(ss_tmp[3], 5, String.charAt(ss[1], 4));
+        do String.setCharAt(ss_tmp[3], 6, String.charAt(ss[2], 4));
+        do String.setCharAt(ss_tmp[3], 7, String.charAt(ss[3], 4));
+        do Main.copyBlock(ss_tmp, ss);
+        return;
+    }
+
+    function void rotateRight(Array ss) {
+        do String.setCharAt(ss_tmp[0], 4, String.charAt(ss[3], 4));
+        do String.setCharAt(ss_tmp[0], 5, String.charAt(ss[2], 4));
+        do String.setCharAt(ss_tmp[0], 6, String.charAt(ss[1], 4));
+        do String.setCharAt(ss_tmp[0], 7, String.charAt(ss[0], 4));
+        do String.setCharAt(ss_tmp[1], 4, String.charAt(ss[3], 5));
+        do String.setCharAt(ss_tmp[1], 5, String.charAt(ss[2], 5));
+        do String.setCharAt(ss_tmp[1], 6, String.charAt(ss[1], 5));
+        do String.setCharAt(ss_tmp[1], 7, String.charAt(ss[0], 5));
+        do String.setCharAt(ss_tmp[2], 4, String.charAt(ss[3], 6));
+        do String.setCharAt(ss_tmp[2], 5, String.charAt(ss[2], 6));
+        do String.setCharAt(ss_tmp[2], 6, String.charAt(ss[1], 6));
+        do String.setCharAt(ss_tmp[2], 7, String.charAt(ss[0], 6));
+        do String.setCharAt(ss_tmp[3], 4, String.charAt(ss[3], 7));
+        do String.setCharAt(ss_tmp[3], 5, String.charAt(ss[2], 7));
+        do String.setCharAt(ss_tmp[3], 6, String.charAt(ss[1], 7));
+        do String.setCharAt(ss_tmp[3], 7, String.charAt(ss[0], 7));
+        do Main.copyBlock(ss_tmp, ss);
+        return;
+    }
+
+    function boolean contains(String s, char c) {  // Searches c in s.
+        var int i, len;
+        let len = s.length();
+
+        while (i < len) {
+            if (s.charAt(i) = c) {  // Found.
+                return true;
+            }
+
+            let i = i + 1;
+        }
+
+        return false;
+    }
+
+    function void eraseLine(int n) {  // Erases the nth line.
+        do String.dispose(ss_bg[n]);
+
+        while (n > 1) {
+            let ss_bg[n] = ss_bg[n - 1];
+            let n = n - 1;
+        }
+
+        let ss_bg[1] = "#          #";  // Adds a new line on top.
+        return;
+    }
+
+    function int updateLines() {  // Returns the number of erased lines.
+        var int i, sum;
+        let i = 1;
+
+        while (i < (H - 1)) {
+            if (~Main.contains(ss_bg[i], 32)) {
+                do Main.eraseLine(i);
+                let sum = sum + 1;
+            }
+
+            let i = i + 1;
+        }
+
+        return sum;
+    }
+}
