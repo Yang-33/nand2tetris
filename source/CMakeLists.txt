@@ -33,17 +33,8 @@ GENERATE_EXPORT_HEADER( ${project_name}
 
 
 ## make source/main.cpp executable
-add_subdirectory(calcdir)
-add_subdirectory(nest)
 add_subdirectory(projects/06)
 add_subdirectory(projects/07)
 add_subdirectory(projects/08)
 add_subdirectory(projects/10)
 add_subdirectory(projects/11)
-
-add_executable(Main main.cpp)
-target_link_libraries(
-  Main
-  Calcdir
-  Nest
-)
