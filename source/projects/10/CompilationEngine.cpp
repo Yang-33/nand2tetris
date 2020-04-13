@@ -10,11 +10,6 @@
 #include "JackTokenizer.h"
 
 namespace nand2tetris {
-#define DEBUG(s) y3debug(__func__,s)
-    void y3debug(const std::string& f, const std::string& s) {
-        std::cerr << f << "[debug]" << s << std::endl;
-    }
-
     CompilationEngine::CompilationEngine(const std::string& inputfile, const std::string& outputfile) :
         tokenizer_(inputfile), ofs_(outputfile), space_size_(0) {
     }
@@ -121,10 +116,10 @@ namespace nand2tetris {
 
     }
     void CompilationEngine::compileOp() {
-        compileSymbol({ "+","-","*","/","&","|","<",">","=" });
+        compileSymbol({ "+", "-", "*", "/", "&", "|", "<", ">", "=" });
     }
     void CompilationEngine::compileUnaryOp() {
-        compileSymbol({ "-","~" });
+        compileSymbol({ "-", "~" });
     }
     void CompilationEngine::compileKeywordConstant() {
         compileKeyword({ kKeyword_True, kKeyword_False,kKeyword_Null,kKeyword_This });
@@ -197,7 +192,7 @@ namespace nand2tetris {
             || isNextUnaryOp();
     }
     bool CompilationEngine::isNextOp() {
-        return isNext({ "+","-","*","/","&","|","<",">","=" });
+        return isNext({ "+", "-", "*", "/", "&" ,"|", "<", ">" ,"=" });
     }
 
     void CompilationEngine::compileClass() {
@@ -401,7 +396,7 @@ namespace nand2tetris {
         return  isNextIdentifier() && isNextNext({ "(", "." });
     }
     bool CompilationEngine::isNextUnaryOp() {
-        return isNext({ "-","~" });
+        return isNext({ "-", "~" });
     }
 
     void CompilationEngine::compileTerm() {
@@ -453,19 +448,21 @@ namespace nand2tetris {
         endTag("expressionList");
     }
     void CompilationEngine::startTag(const std::string& tag) {
+        ofs_ << std::string(2 * space_size_, ' ');
         ofs_ << "<" << tag << ">" << std::endl;
         ++space_size_;
     }
     void CompilationEngine::endTag(const std::string& tag) {
-        ofs_ << "</" << tag << ">" << std::endl;
         --space_size_;
+        ofs_ << std::string(2 * space_size_, ' ');
+        ofs_ << "</" << tag << ">" << std::endl;
     }
     void CompilationEngine::write(const std::string& tag, std::string s) {
         ofs_ << std::string(2 * space_size_, ' ');
         if (s == "<")s = "&lt;";
         if (s == ">")s = "&gt;";
         if (s == "&")s = "&amp;";
-        ofs_ << "<" << tag << ">" << s << "</" << tag << ">" << std::endl;
+        ofs_ << "<" << tag << "> " << s << " </" << tag << ">" << std::endl;
     }
 
 }  // namespace nand2tetris

@@ -90,8 +90,8 @@ namespace nand2tetris {
         auto match = [](const std::string& s) {
             size_t cnt = 0;
             for (auto c : s) {
-                for (auto symbol : { '{','}','(',')','[',']','.',',',';','+','-',
-                    '*','/','&','|','<','>','=','~' }) {
+                for (auto symbol : { '{', '}', '(', ')', '[', ']', '.', ',',
+                    ';', '+', '-', '*', '/', '&', '|', '<', '>', '=', '~' }) {
                     if (c == symbol) return cnt;
                 }
                 ++cnt;
@@ -124,7 +124,9 @@ namespace nand2tetris {
                     line = line.substr(index + 1);
                     line = trim(line);
                 }
-                else if (doubleQuoteIndex != std::string::npos && spaceIndex != std::string::npos && doubleQuoteIndex < spaceIndex) {
+                else if (doubleQuoteIndex != std::string::npos
+                    && spaceIndex != std::string::npos
+                    && doubleQuoteIndex < spaceIndex) {
                     auto unit = line.substr(0, doubleQuoteIndex);
                     parserUnit(unit);
                     line = line.substr(doubleQuoteIndex);
@@ -169,8 +171,8 @@ namespace nand2tetris {
         }
         // Symbol
         {
-            for (auto symbol : { '{','}','(',')','[',']','.',',',';','+','-',
-                '*','/','&','|','<','>','=','~' }) {
+            for (auto symbol : { '{', '}', '(', ')', '[', ']', '.', ',', ';',
+                '+', '-', '*', '/', '&', '|', '<', '>', '=', '~' }) {
                 if (token.front() == symbol) {
                     return TokenType::SYMBOL;
                 }
