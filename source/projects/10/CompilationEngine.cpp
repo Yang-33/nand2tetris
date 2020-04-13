@@ -1,10 +1,7 @@
 #include "CompilationEngine.h"
 
 #include <assert.h>
-#include <bitset>
 #include <iostream>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <vector>
 #include "JackTokenizer.h"

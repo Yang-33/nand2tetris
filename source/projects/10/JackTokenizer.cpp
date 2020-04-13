@@ -1,6 +1,5 @@
 #include "JackTokenizer.h"
 
-#include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include <sstream>

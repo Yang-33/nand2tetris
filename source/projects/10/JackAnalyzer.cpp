@@ -4,7 +4,6 @@
 #include <glob.h>
 #include <iostream>
 #include <string>
-#include <fstream>
 
 #include "CompilationEngine.h"
 #include "JackTokenizer.h"
