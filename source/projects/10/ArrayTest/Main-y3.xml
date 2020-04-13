@@ -95,7 +95,7 @@
 <term>
               <identifier>i</identifier>
 </term>
-            <symbol><</symbol>
+            <symbol>&lt;</symbol>
 <term>
               <identifier>length</identifier>
 </term>
@@ -179,7 +179,7 @@
 <term>
               <identifier>i</identifier>
 </term>
-            <symbol><</symbol>
+            <symbol>&lt;</symbol>
 <term>
               <identifier>length</identifier>
 </term>

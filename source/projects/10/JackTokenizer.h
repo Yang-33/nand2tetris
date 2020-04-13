@@ -1,7 +1,7 @@
 #ifndef SOURCE_PROJECT_10_JACKTOKENIZER_H_
 #define SOURCE_PROJECT_10_JACKTOKENIZER_H_
 
-#include <queue>
+#include <deque>
 #include <string>
 #include <vector>
 #include "src_Export.h"
@@ -62,18 +62,22 @@ namespace nand2tetris {
 
     class src_EXPORT JackTokenizer {
     private:
-        std::queue<std::string> token_queue_;
+        std::deque<std::string> token_queue_;
     public:
-        explicit JackTokenizer(const std::string&);
+        explicit JackTokenizer(const std::string& s);
         bool hasMoreTokens();
         void advance();
         TokenType tokenType();
+        TokenType tokenType(const std::string& token);
         KeywordType keyWord();
         std::string getKeyWord();
         std::string symbol();
         std::string identifier();
         int intVal();
         std::string stringVal();
+
+        std::string nextToken();
+        std::string nextNextToken();
     };
 }  // namespace nand2tetris
 

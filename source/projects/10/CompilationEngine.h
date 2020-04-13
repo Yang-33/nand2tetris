@@ -3,6 +3,8 @@
 
 #include <string>
 #include <fstream>
+#include <vector>
+#include "JackTokenizer.h"
 #include "src_Export.h"
 
 
@@ -11,33 +13,70 @@ namespace nand2tetris {
     class src_EXPORT CompilationEngine {
     public:
         // Prepare for writing on |outputfile|.
-        explicit CompilationEngine(const std::string& outputfile);
-        // Inform beginning translation a new vm file.
-        void setFileName(const std::string& filename);
-        // Transform the given arithmetic command into assembly code and write it.
-
+        explicit CompilationEngine(const std::string& inputfile, const std::string& outputfile);
+        void compile();
+    private:
         void compileClass();
         void compileClassVarDec();
-        void compileSubroutine();
+        void compileSubroutineDec();
         void compileParameterList();
         void compileVarDec();
         void compileStatements();
-        void compileDo();
-        void compileLet();
-        void compileWhile();
-        void compileReturn();
-        void compileIf();
+        void compileDoStatement();
+        void compileLetStatement();
+        void compileWhileStatement();
+        void compileReturnStatement();
+        void compileIfStatement();
         void compileExpression();
         void compileTerm();
         void compileExpressionList();
 
-    private:
+        void compileSubroutineCall();
+        void compileType();
+        void compileVarName();
+        void compileSubroutineBody();
+        void compileSubroutineName();
+        void compileStatement();
+        void compileOp();
+        void compileUnaryOp();
+        void compileKeywordConstant();
+
+        bool isNextIdentifier();
+        bool isNextOp();
+        bool isNextTerm();
+        bool isNextExpression();
+        bool isNextLetStatement();
+        bool isNextIfStatement();
+        bool isNextWhileStatement();
+        bool isNextDoStatement();
+        bool isNextReturnStatement();
+        bool isNextStatement();
+        bool isNextVarDec();
+        bool isNextType();
+        bool isNextClassVarDec();
+        bool isNextSubroutineDec();
+        bool isNextIntergerConstant();
+        bool isNextStringConstant();
+        bool isNextKeywordConstant();
+        bool isNextVarName();
+        bool isNextSubroutineCall();
+        bool isNextUnaryOp();
+        bool isNext(const std::vector<std::string>& targets);
+        bool isNextNext(const std::vector<std::string>& targets);
+
+        void compileKeyword(const std::vector<std::string>& targets);
+        void compileSymbol(const std::vector<std::string>& targets);
+        void compileIdentifier();
+        void compileIntegerConstant();
+        void compileStringConstant();
+
+        void startTag(const std::string& tag);
+        void endTag(const std::string& tag);
+        void write(const std::string& tag, std::string s);
+
+        JackTokenizer tokenizer_;
         std::ofstream ofs_;
-        // |filename_| is used to create static var.
-        std::string filename_;
-        int labelid_;
-        int return_labelid_;
-        std::string current_function_name_;
+        int space_size_;
     };
 }  // namespace nand2tetris
 

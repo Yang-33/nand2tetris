@@ -33,13 +33,13 @@ namespace nand2tetris {
         }
         auto trim = [](std::string s) {
             int start;
-            for (start = 0; start < s.size() && std::isspace(s[start]); ++start);
+            for (start = 0; start < (int)s.size() && std::isspace(s[start]); ++start);
             int end;
-            for (end = s.size() - 1; end >= 0 && std::isspace(s[end]); --end);
+            for (end = (int)s.size() - 1; end >= 0 && std::isspace(s[end]); --end);
             return s.substr(start, end - start + 1);
         };
         std::vector<std::string>lines; {
-            // to oneline
+            // To oneline
             std::string ss; {
                 std::string s;
                 while (getline(ifs, s)) {
@@ -47,7 +47,7 @@ namespace nand2tetris {
                 }
             }
 
-            // /**/ コメントの削除
+            // Remove |/**/|
             while (ss.find("/*") != std::string::npos) {
                 auto index = ss.find("/*");
                 auto index2 = ss.find("*/");
@@ -64,7 +64,7 @@ namespace nand2tetris {
                 }
             }
 
-            // // コメントの削除
+            // Remove |//|
             for (auto& line : lines) {
                 if (line.find("//") != std::string::npos) {
                     auto idx = line.find("//");
@@ -80,16 +80,13 @@ namespace nand2tetris {
             }
             valid_lines.swap(lines);
         }
-        token_queue_.push({});
+        token_queue_.push_back({});
         auto PUSH = [&](std::string s) {
-            //std::cerr<<__func__<<", "<<s<<std::endl;
             s = trim(s);
             if (s.size()) {
-                token_queue_.push(s);
+                token_queue_.push_back(s);
             }
         };
-        // 分離
-        // matchするならば、前方で一致するものを探す
         auto match = [](const std::string& s) {
             size_t cnt = 0;
             for (auto c : s) {
@@ -103,7 +100,6 @@ namespace nand2tetris {
         };
         auto parserUnit = [&](std::string& unit) {
             while (unit.size()) {
-                auto i = match(unit);
                 if (match(unit) != std::string::npos) {
                     const auto index = match(unit);
                     if (index != std::string::npos) {
@@ -154,13 +150,10 @@ namespace nand2tetris {
 
     void JackTokenizer::advance() {
         assert(hasMoreTokens());
-        token_queue_.pop();
+        token_queue_.pop_front();
     }
-
-    TokenType JackTokenizer::tokenType() {
-
+    TokenType JackTokenizer::tokenType(const std::string& token) {
         // KeyWord
-        const std::string token = token_queue_.front();
         {
             for (auto keyword : { kKeyword_Class, kKeyword_Constructor,
                 kKeyword_Function, kKeyword_Method, kKeyword_Field,
@@ -183,7 +176,7 @@ namespace nand2tetris {
                 }
             }
         }
-        // interger
+        // Interger
         {
             bool is_int = true; {
                 for (char c : token) {
@@ -195,14 +188,18 @@ namespace nand2tetris {
                 return TokenType::INT_CONST;
             }
         }
-        // string
+        // String
         {
             if (token.front() == '"' && token.back() == '"') {
                 return TokenType::STRING_CONST;
             }
         }
-        // identifier
+        // Identifier
         return TokenType::IDENTIFIER;
+    }
+    TokenType JackTokenizer::tokenType() {
+        const std::string token = token_queue_.front();
+        return tokenType(token);
     }
     KeywordType JackTokenizer::keyWord() {
         assert(tokenType() == nand2tetris::TokenType::KEYWORD);
@@ -278,7 +275,22 @@ namespace nand2tetris {
         assert(tokenType() == nand2tetris::TokenType::KEYWORD);
         return token_queue_.front();
     }
-
+    std::string JackTokenizer::nextToken() {
+        if (token_queue_.size() > 1) {
+            return token_queue_[1];
+        }
+        else {
+            return "";
+        }
+    }
+    std::string JackTokenizer::nextNextToken() {
+        if (token_queue_.size() > 2) {
+            return token_queue_[2];
+        }
+        else {
+            return "";
+        }
+    }
     std::string JackTokenizer::symbol() {
         assert(tokenType() == nand2tetris::TokenType::SYMBOL);
         return token_queue_.front();

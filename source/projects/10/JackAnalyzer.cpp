@@ -22,7 +22,6 @@ void part1(nand2tetris::JackTokenizer& tokenizer, const std::string& output_file
             ofs_ << "<integerConstant>" << tokenizer.intVal() << "</integerConstant>" << std::endl;
         }
         else if (token_type == nand2tetris::TokenType::KEYWORD) {
-            nand2tetris::KeywordType keyword_type = tokenizer.keyWord();
             ofs_ << "<keyword>" << tokenizer.getKeyWord() << "</keyword>" << std::endl;
         }
         else if (token_type == nand2tetris::TokenType::STRING_CONST) {
@@ -53,18 +52,15 @@ int main(int argc, char* argv[]) {
         std::cerr << __func__ << " needs arguments 2." << std::endl;
         return 1;
     }
-    std::string infilepath = argv[1];
-    bool is_single_file = true;
-    std::string outfilepath;
     std::string path;
     {
+        std::string infilepath = argv[1];
         auto last_slash_index = infilepath.find_last_of('/');
         assert(last_slash_index != std::string::npos);
         path = infilepath.substr(0, last_slash_index + 1);
-        outfilepath = infilepath.substr(last_slash_index + 1); // /NAME?
+        std::string outfilepath = infilepath.substr(last_slash_index + 1); // /NAME?
         auto dot_index = outfilepath.find_last_of('.');
         if (dot_index == std::string::npos) {
-            is_single_file = false;
             path = infilepath + "/";
         }
     }
@@ -74,10 +70,15 @@ int main(int argc, char* argv[]) {
     glob(target.c_str(), GLOB_TILDE, NULL, &glob_result);
     for (unsigned int i = 0; i < glob_result.gl_pathc; ++i) {
         std::string filepath = glob_result.gl_pathv[i];
-        std::string xmlpath = filepath.substr(0, filepath.size() - 5) + "T-y3.xml";
-        nand2tetris::JackTokenizer tokenizer(filepath);
-        part1(tokenizer, xmlpath);
-        // nand2tetris::CompilationEngine compipation_engine();
+        std::string xmlpath = filepath.substr(0, filepath.size() - 5) + "-y3.xml";
+        if (false) {
+            nand2tetris::JackTokenizer tokenizer(filepath);
+            part1(tokenizer, xmlpath);
+        }
+        else {
+            nand2tetris::CompilationEngine compilation_engine(filepath, xmlpath);
+            compilation_engine.compile();
+        }
         std::cerr << "JackAnalyzer created" << filepath << " into " << xmlpath << std::endl;
     }
 
