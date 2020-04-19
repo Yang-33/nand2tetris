@@ -82,7 +82,7 @@ namespace nand2tetris {
     void VMWriter::writePop(Segment segment, int index) {
         ofs_ << "pop " << segmentString(segment) << " " << index << std::endl;
     }
-    void VMWriter::writeWrithmetic(Command command) {
+    void VMWriter::writeArithmetic(Command command) {
         ofs_ << CommandString(command) << std::endl;
     }
     void VMWriter::writeLabel(const std::string& label) {

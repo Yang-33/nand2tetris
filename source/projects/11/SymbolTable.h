@@ -20,10 +20,21 @@ namespace nand2tetris {
     public:
         explicit SymbolTable();
         void startSubroutine();
+
+        // 割当（名前、型、シンボルのタイプ）
         void define(const std::string& name, const std::string& type, SymbolType kind);
+
+        // 引数で与えられた属性（シンボルのタイプ）について、それが現在のスコープで与えられている数
         int varCount(SymbolType kind);
+
+        // 引数で与えら得た名前の識別子を現在のスコープで探し、その属性を返す。
+        // その識別子が現在のスコープで見つからなければNONEを返す
         SymbolType kindOf(const std::string& name);
+
+        // 引数で与えられた名前の識別子を現在のスコープで探し、その型を返す
         std::string typeOf(const std::string& name);
+
+        // 引数で与えられた名前の識別子を現在のスコープで探し、そのインデックスを返す
         int indexOf(const std::string& name);
     private:
         struct SymbolTuple {

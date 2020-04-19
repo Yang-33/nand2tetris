@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     glob(target.c_str(), GLOB_TILDE, NULL, &glob_result);
     for (unsigned int i = 0; i < glob_result.gl_pathc; ++i) {
         std::string filepath = glob_result.gl_pathv[i];
-        std::string xmlpath = filepath.substr(0, filepath.size() - 5) + "-y3.xml";
+        std::string xmlpath = filepath.substr(0, filepath.size() - 5) + ".vm";
 
         nand2tetris::CompilationEngine compilation_engine(filepath, xmlpath);
         compilation_engine.compile();

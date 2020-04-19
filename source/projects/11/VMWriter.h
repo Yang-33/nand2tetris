@@ -19,7 +19,7 @@ namespace nand2tetris {
         POINTER,
         TEMP
     };
-    const std::string kSegmentConst = "const";
+    const std::string kSegmentConst = "constant";
     const std::string kSegmentArg = "argument";
     const std::string kSegmentLocal = "local";
     const std::string kSegmentStatic = "static";
@@ -54,7 +54,7 @@ namespace nand2tetris {
         explicit VMWriter(const std::string& s);
         void writePush(Segment segment, int index);
         void writePop(Segment segment, int index);
-        void writeWrithmetic(Command command);
+        void writeArithmetic(Command command);
         void writeLabel(const std::string& label);
         void writeGoto(const std::string& label);
         void writeIf(const std::string& label);
