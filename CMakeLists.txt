@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.6)
 project (nand2tetris)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -ftrapv")
-message(STATUS "!!!! ${CMAKE_CXX_FLAGS}")
 
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 if (APPLE)
