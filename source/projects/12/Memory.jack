@@ -7,28 +7,79 @@
  * This library provides two services: direct access to the computer's main
  * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
  * consists of 32,768 words, each holding a 16-bit binary number.
- */ 
+ */
 class Memory {
-
+    static Array memory;
+    static Array freeList;
     /** Initializes the class. */
     function void init() {
+        let memory = 0;
+        let freeList = 2048;
+        let freeList[0] = 16383 - 2048;
+        let freeList[1] = null;
+        return ;
     }
 
     /** Returns the RAM value at the given address. */
     function int peek(int address) {
+        return memory[address];
     }
 
     /** Sets the RAM value at the given address to the given value. */
     function void poke(int address, int value) {
+        let memory[address] = value;
+        return ;
     }
 
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
+        var Array pointer;
+        var Array nextList;
+        var Array prevList;
+        var int listSize, next;
+        if(size < freeList[0]){
+            let pointer = freeList + 1;
+            let freeList = freeList + size + 1; // moving the free list to next available location
+            let freeList[0] = pointer[-1] - (size + 1); // updating size
+            let pointer[-1] = size + 1; // storing size of array
+            let freeList[1] = null; // next list is still null
+            return pointer;
+        }else{
+            // if the size does not fit, find the next list that will fit
+            let nextList = freeList[1];
+            let prevList = freeList;
+            let listSize = nextList[0];
+            while(~(size < listSize) & ~(nextList = null)){
+                let prevList = nextList;
+                let nextList = nextList[1];
+                let listSize = nextList[0];
+            }
+            if(size < listSize){
+                let pointer = nextList + 1;
+                let next = nextList[1];
+                let nextList = nextList + size + 1; // moving the free list to next available location
+                let nextList[0] = pointer[-1] - (size + 1); // updating size
+                let nextList[1] = next;
+                let pointer[-1] = size + 1; // storing size of array
+                let prevList[1] = nextList; // have previous list now point to this updated next list
+                return pointer;
+            }else{
+                return 0; // should attempt defragmentation here
+            }
+        }
     }
 
     /** De-allocates the given object (cast as an array) by making
      *  it available for future allocations. */
-    function void deAlloc(Array o) {
-    }    
+    function void deAlloc(Array object) {
+        var Array list;
+        let list = freeList;
+        while(~(list[1] = null)){
+            let list = list[1]; // next
+        }
+        let list[1] = object - 1;
+        let object[0] = null;
+        return ;
+    }
 }
