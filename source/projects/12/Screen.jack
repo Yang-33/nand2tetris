@@ -10,34 +10,169 @@
  * the screen is indexed (0,0).
  */
 class Screen {
+    static Array screen;
+    static Array twoToThe;
+    static boolean color;
 
     /** Initializes the Screen. */
     function void init() {
+        let screen = 16384;
+        let color = true;
+
+        let twoToThe = Array.new(16);
+        let twoToThe[0] = 1;
+        let twoToThe[1] = 2;
+        let twoToThe[2] = 4;
+        let twoToThe[3] = 8;
+        let twoToThe[4] = 16;
+        let twoToThe[5] = 32;
+        let twoToThe[6] = 64;
+        let twoToThe[7] = 128;
+        let twoToThe[8] = 256;
+        let twoToThe[9] = 512;
+        let twoToThe[10] = 1024;
+        let twoToThe[11] = 2048;
+        let twoToThe[12] = 4096;
+        let twoToThe[13] = 8192;
+        let twoToThe[14] = 16384;
+        let twoToThe[15] = 16384 + 16384;
+        return ;
     }
 
     /** Erases the entire screen. */
     function void clearScreen() {
+        var int i, screen_size;
+        let i = 0;
+        let screen_size = 256 * 512 / 16;
+        while(i < screen_size){
+            let screen [i] = false;
+            let i = i + 1;
+        }
+        return ;
     }
 
     /** Sets the current color, to be used for all subsequent drawXXX commands.
      *  Black is represented by true, white by false. */
     function void setColor(boolean b) {
+        let color = b;
+        return ;
     }
 
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
+        var int address, bit, mask;
+        let address = (32 * y) + (x / 16);
+        let bit = x - ((x / 16) * 16); // = x % 16
+        let mask = twoToThe[bit];
+        if(color){
+            let screen[address] = screen[address] | mask; // black pixel
+        }else{
+            let screen[address] = screen[address] & ~mask; // white pixel
+        }
+        return ;
     }
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
+        var int dx, dy, a, b, temp;
+        var int adyMinusbdx;
+        var int bdxMinusady;
+        let a = 0;
+        let b = 0;
+
+        // swap
+        if (x1 > x2) {
+            let temp = x1;
+            let x1 = x2;
+            let x2 = temp;
+            let temp = y1;
+            let y1 = y2;
+            let y2 = temp;
+        }
+
+        let dx = x2 - x1;
+        let dy = y2 - y1;
+
+        // draw vertical line from y1 to y2
+        if(dx = 0){
+            do Screen.drawPixel(x1, y1);
+            while(~(b = dy)){
+                if(dy < 0){
+                    let b = b - 1;
+                }else{
+                    let b = b + 1;
+                }
+                do Screen.drawPixel(x1, y1 + b);
+            }
+            return ;
+        }
+        // draw horizontal line from x1 to x2
+        if(dy = 0){
+            do Screen.drawPixel(x1, y1);
+            while(~(a = dx)){
+                if(dx < 0){
+                    let a = a - 1;
+                }else{
+                    let a = a + 1;
+                }
+                do Screen.drawPixel(x1 + a, y1);
+            }
+            return ;
+        }
+
+        if((dx > 0) & (dy > 0)){
+            let adyMinusbdx = 0;
+            while((~(a > dx)) & (~(b > dy))){
+                do Screen.drawPixel(x1 + a, y1 + b);
+                if(adyMinusbdx < 0){
+                    let a = a + 1;
+                    let adyMinusbdx = adyMinusbdx + dy;
+                }else{
+                    let b = b + 1;
+                    let adyMinusbdx = adyMinusbdx - dx;
+                }
+            }
+            return ;
+        }
+        if((dx > 0) & (dy < 0)){
+            let bdxMinusady = 0;
+            while((~(a > dx)) & (~(b < dy))){
+                do Screen.drawPixel(x1 + a, y1 + b);
+                if(bdxMinusady < 0){
+                    let a = a + 1;
+                    let bdxMinusady = bdxMinusady - dy;
+                }else{
+                    let b = b - 1;
+                    let bdxMinusady = bdxMinusady - dx;
+                }
+            }
+        }
+        return ;
     }
 
     /** Draws a filled rectangle whose top left corner is (x1, y1)
      * and bottom right corner is (x2,y2), using the current color. */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
+        var int dy;
+        let dy = y1;
+        while(~(dy > y2)){
+            do Screen.drawLine(x1, dy, x2, dy);
+            let dy = dy + 1;
+        }
+        return ;
     }
 
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
+        var int dx, dy;
+        var int r_squared;
+        let dy = -r;
+        let r_squared = r * r;
+        while(~(dy > r)){
+            let dx = Math.sqrt(r_squared - (dy * dy));
+            do Screen.drawLine(x - dx, y + dy, x + dx, y + dy);
+            let dy = dy + 1;
+        }
+        return ;
     }
 }
