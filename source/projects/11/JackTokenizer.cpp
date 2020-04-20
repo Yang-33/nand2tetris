@@ -131,6 +131,20 @@ namespace nand2tetris {
                     line = line.substr(doubleQuoteIndex);
                     line = trim(line);
                 }
+                else if (doubleQuoteIndex != std::string::npos
+                    && spaceIndex != std::string::npos
+                    && doubleQuoteIndex >= spaceIndex) {
+                    auto unit = line.substr(0, spaceIndex);
+                    parserUnit(unit);
+                    line = line.substr(spaceIndex + 1);
+                    line = trim(line);
+                }
+                else if (doubleQuoteIndex != std::string::npos) {
+                    auto unit = line.substr(0, doubleQuoteIndex);
+                    parserUnit(unit);
+                    line = line.substr(doubleQuoteIndex);
+                    line = trim(line);
+                }
                 else if (spaceIndex != std::string::npos) {
                     auto unit = line.substr(0, spaceIndex);
                     parserUnit(unit);
