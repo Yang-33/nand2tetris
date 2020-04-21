@@ -6,28 +6,28 @@
 /**
  * A library of functions for writing text on the screen.
  * The Hack physical screen consists of 512 rows of 256 pixels each.
- * The library uses a fixed font, in which each character is displayed 
- * within a frame which is 11 pixels high (including 1 pixel for inter-line 
+ * The library uses a fixed font, in which each character is displayed
+ * within a frame which is 11 pixels high (including 1 pixel for inter-line
  * spacing) and 8 pixels wide (including 2 pixels for inter-character spacing).
  * The resulting grid accommodates 23 rows (indexed 0..22, top to bottom)
- * of 64 characters each (indexed 0..63, left to right). The top left 
+ * of 64 characters each (indexed 0..63, left to right). The top left
  * character position on the screen is indexed (0,0). A cursor, implemented
  * as a small filled square, indicates where the next character will be displayed.
  */
 class Output {
 
-    // Character map for displaying characters
+    // Character map for printing on the left of a screen word
     static Array charMaps;
-    static int cursor_row, cursor_col;
+    static int cursorRow;
+    static int cursorCol;
     static Array screen;
-
-    /** Initializes the screen, and locates the cursor at the screen's top-left. */
+    /** Initializes the screen and locates the cursor at the screen's top-left. */
     function void init() {
-        let cursor_row = 0;
-        let cursor_col = 0;
+        let cursorRow = 0;
+        let cursorCol = 0;
         let screen = 16384;
         do Output.initMap();
-        return ;
+        return;
     }
 
     // Initializes the character map array
@@ -150,9 +150,9 @@ class Output {
     // Creates the character map array of the given character index, using the given values.
     function void create(int index, int a, int b, int c, int d, int e,
                          int f, int g, int h, int i, int j, int k) {
-    var Array map;
+        var Array map;
 
-    let map = Array.new(11);
+        let map = Array.new(11);
         let charMaps[index] = map;
 
         let map[0] = a;
@@ -183,41 +183,38 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-        let cursor_row = i;
-        let cursor_col = j;
-        return ;
+        var int location;
+        let cursorRow = i;
+        let cursorCol = j;
+        do Output.printChar(32); // erase the character that was there
+        let cursorRow = i;
+        let cursorCol = j;
+        return;
     }
 
     /** Displays the given character at the cursor location,
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
-        var Array map;
-        var int address, bitmap, i;
-        var boolean shouldDisplayRight;
+        var Array character;
+        var int address, incAddressVal, bitVal, locBits, i;
 
-        let map = Output.getMap(c);
-        let address = (cursor_row * 32 * 11) + (cursor_col * 8 / 16);
-        let shouldDisplayRight = ((cursor_col & 1) = 1);
-
-        // print the character
+        let character = Output.getMap(c); // gets the character map that the user wants to print
+        let address = (cursorCol/2) + (352*cursorRow); // determines the start address for the character
+        let incAddressVal = 32; // next address to write the bitVal to
+        let locBits = cursorCol - ((cursorCol/2)*2); // Even columns are written to (0-7), odd columns are written to (8-15), determined using mod equation
         let i = 0;
-        while (i < 11) {
-            let bitmap = map[i];
-            if (shouldDisplayRight) {
-                let bitmap = bitmap * 256;
-                let screen[address] = screen[address] & (-1 & 255) | bitmap; // reset right side and set bitmap
-            } else {
-                let screen[address] = screen[address] & 255 | bitmap; // reset left side and set bitmap
+        while(i < 11){
+            if(locBits = 0){
+                let screen[address] = (screen[address] & -256) + character[i]; // keep whatever was at the bits 8-15, and replace bits 0-7
+            }else{
+                let screen[address] = (screen[address] & 255) + (character[i] * 256); // keep whatever was at bits 0-7, and replace bits 8-15. shift left by 8 = multiply by 256
             }
-            let address = address + 32;
+            let address = address + incAddressVal;
             let i = i + 1;
         }
-
-        // advance the cursor
-        if (cursor_col = 63) {
+        let cursorCol = cursorCol + 1;
+        if(cursorCol = 64){
             do Output.println();
-        } else {
-            let cursor_col = cursor_col + 1;
         }
         return;
     }
@@ -231,39 +228,41 @@ class Output {
             do Output.printChar(s.charAt(i));
             let i = i + 1;
         }
-        return ;
+        return;
     }
 
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
-        var String s;
-        let s = String.new(6); // Max case : -32768
-        do s.setInt(i);
-        do Output.printString(s);
-        do s.dispose();
-        return ;
+        var String str;
+        let str = String.new(7); // longest number we can represent is -32768, which is 6 characters long. Give max length of 7
+        do str.setInt(i);
+        do Output.printString(str);
+        do str.dispose();
+        return;
     }
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
-        if(cursor_row < 22){
-            do Output.moveCursor(cursor_row + 1, 0);
-        }else{
-            do Output.moveCursor(0, 0);
+        let cursorCol = 0;
+        let cursorRow = cursorRow + 1;
+        if(cursorRow = 23){
+            // move cursor to (0,0)
+            let cursorCol = 0;
+            let cursorRow = 0;
         }
-        return ;
+        return;
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
-        if(cursor_col = 0){
-            if(~(cursor_row = 0)){
-                do Output.moveCursor(cursor_row - 1, 63);
-            }
+        if((cursorCol = 0) & ~(cursorRow = 0)){
+            let cursorCol = 63;
+            let cursorRow = cursorRow - 1;
         }else{
-            do Output.moveCursor(cursor_row, cursor_col - 1);
+            let cursorCol = cursorCol - 1;
         }
-        return ;
+        do Output.moveCursor(cursorRow, cursorCol); // erase the character that we just backspaced
+        return;
     }
 }

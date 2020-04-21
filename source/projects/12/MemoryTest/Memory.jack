@@ -34,6 +34,7 @@ class Memory {
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
+        // 'That' segment must be in the Heap or Screen range in Memory.alloc.34
         var Array pointer;
         var Array nextList;
         var Array prevList;

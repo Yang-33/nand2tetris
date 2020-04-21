@@ -9,6 +9,7 @@ class Main {
         let H = 22;
         let W = 12;
         let BLOCK = 4;
+        let rand = 7;
         let speed = 150;  // environment dependent
         let ss_buf = Main.createField();
         let ss_bg  = Main.createField();
@@ -179,13 +180,15 @@ class Main {
     }
 
     function int random() {  // Returns a random number of 16-bit.
-        let rand = (rand * 12343) + 12347;  // Naive implementation.
+        var int x;
+        let x = rand * rand;
+        let rand = Main.modulo(x , 127);
         return rand;
     }
 
     function int randomInt(int n) {  // Returns a random number < n.
         // Disposes the lowest decimal for a little better randomness.
-        return Math.abs(Main.modulo(Main.random() / 10, n));
+        return Math.abs(Main.modulo(Main.random(), n));
     }
 
     function void setNext() {
@@ -369,63 +372,120 @@ class Main {
     }
 
     function void copyBlock(Array a, Array b) {
-        do String.setCharAt(b[0], 4, String.charAt(a[0], 4));
-        do String.setCharAt(b[0], 5, String.charAt(a[0], 5));
-        do String.setCharAt(b[0], 6, String.charAt(a[0], 6));
-        do String.setCharAt(b[0], 7, String.charAt(a[0], 7));
-        do String.setCharAt(b[1], 4, String.charAt(a[1], 4));
-        do String.setCharAt(b[1], 5, String.charAt(a[1], 5));
-        do String.setCharAt(b[1], 6, String.charAt(a[1], 6));
-        do String.setCharAt(b[1], 7, String.charAt(a[1], 7));
-        do String.setCharAt(b[2], 4, String.charAt(a[2], 4));
-        do String.setCharAt(b[2], 5, String.charAt(a[2], 5));
-        do String.setCharAt(b[2], 6, String.charAt(a[2], 6));
-        do String.setCharAt(b[2], 7, String.charAt(a[2], 7));
-        do String.setCharAt(b[3], 4, String.charAt(a[3], 4));
-        do String.setCharAt(b[3], 5, String.charAt(a[3], 5));
-        do String.setCharAt(b[3], 6, String.charAt(a[3], 6));
-        do String.setCharAt(b[3], 7, String.charAt(a[3], 7));
+        var String B, A;
+        var int i;
+        let i = 0;
+        while(i < 4){
+            let B = b[i];
+            let A = a[i];
+            do B.setCharAt(4, A.charAt(4));
+            do B.setCharAt(5, A.charAt(5));
+            do B.setCharAt(6, A.charAt(6));
+            do B.setCharAt(7, A.charAt(7));
+            let i = i + 1;
+        }
+        /*
+            do String.setCharAt(b[0], 4, String.charAt(a[0], 4));
+            do String.setCharAt(b[0], 5, String.charAt(a[0], 5));
+            do String.setCharAt(b[0], 6, String.charAt(a[0], 6));
+            do String.setCharAt(b[0], 7, String.charAt(a[0], 7));
+
+            do String.setCharAt(b[1], 4, String.charAt(a[1], 4));
+            do String.setCharAt(b[1], 5, String.charAt(a[1], 5));
+            do String.setCharAt(b[1], 6, String.charAt(a[1], 6));
+            do String.setCharAt(b[1], 7, String.charAt(a[1], 7));
+
+            do String.setCharAt(b[2], 4, String.charAt(a[2], 4));
+            do String.setCharAt(b[2], 5, String.charAt(a[2], 5));
+            do String.setCharAt(b[2], 6, String.charAt(a[2], 6));
+            do String.setCharAt(b[2], 7, String.charAt(a[2], 7));
+
+            do String.setCharAt(b[3], 4, String.charAt(a[3], 4));
+            do String.setCharAt(b[3], 5, String.charAt(a[3], 5));
+            do String.setCharAt(b[3], 6, String.charAt(a[3], 6));
+            do String.setCharAt(b[3], 7, String.charAt(a[3], 7));
+        */
         return;
     }
 
     function void rotateLeft(Array ss) {
-        do String.setCharAt(ss_tmp[0], 4, String.charAt(ss[0], 7));
-        do String.setCharAt(ss_tmp[0], 5, String.charAt(ss[1], 7));
-        do String.setCharAt(ss_tmp[0], 6, String.charAt(ss[2], 7));
-        do String.setCharAt(ss_tmp[0], 7, String.charAt(ss[3], 7));
-        do String.setCharAt(ss_tmp[1], 4, String.charAt(ss[0], 6));
-        do String.setCharAt(ss_tmp[1], 5, String.charAt(ss[1], 6));
-        do String.setCharAt(ss_tmp[1], 6, String.charAt(ss[2], 6));
-        do String.setCharAt(ss_tmp[1], 7, String.charAt(ss[3], 6));
-        do String.setCharAt(ss_tmp[2], 4, String.charAt(ss[0], 5));
-        do String.setCharAt(ss_tmp[2], 5, String.charAt(ss[1], 5));
-        do String.setCharAt(ss_tmp[2], 6, String.charAt(ss[2], 5));
-        do String.setCharAt(ss_tmp[2], 7, String.charAt(ss[3], 5));
-        do String.setCharAt(ss_tmp[3], 4, String.charAt(ss[0], 4));
-        do String.setCharAt(ss_tmp[3], 5, String.charAt(ss[1], 4));
-        do String.setCharAt(ss_tmp[3], 6, String.charAt(ss[2], 4));
-        do String.setCharAt(ss_tmp[3], 7, String.charAt(ss[3], 4));
+        var String B, aa,bb,cc,dd;
+        var int i;
+        let i = 0;
+        while(i < 4){
+            let B = ss_tmp[i];
+            let aa = ss[0];
+            let bb = ss[1];
+            let cc = ss[2];
+            let dd = ss[3];
+            do B.setCharAt(4, aa.charAt(7-i));
+            do B.setCharAt(5, bb.charAt(7-i));
+            do B.setCharAt(6, cc.charAt(7-i));
+            do B.setCharAt(7, dd.charAt(7-i));
+            let i = i + 1;
+        }
+        /*
+            do String.setCharAt(ss_tmp[0], 4, String.charAt(ss[0], 7));
+            do String.setCharAt(ss_tmp[0], 5, String.charAt(ss[1], 7));
+            do String.setCharAt(ss_tmp[0], 6, String.charAt(ss[2], 7));
+            do String.setCharAt(ss_tmp[0], 7, String.charAt(ss[3], 7));
+
+            do String.setCharAt(ss_tmp[1], 4, String.charAt(ss[0], 6));
+            do String.setCharAt(ss_tmp[1], 5, String.charAt(ss[1], 6));
+            do String.setCharAt(ss_tmp[1], 6, String.charAt(ss[2], 6));
+            do String.setCharAt(ss_tmp[1], 7, String.charAt(ss[3], 6));
+        
+            do String.setCharAt(ss_tmp[2], 4, String.charAt(ss[0], 5));
+            do String.setCharAt(ss_tmp[2], 5, String.charAt(ss[1], 5));
+            do String.setCharAt(ss_tmp[2], 6, String.charAt(ss[2], 5));
+            do String.setCharAt(ss_tmp[2], 7, String.charAt(ss[3], 5));
+        
+            do String.setCharAt(ss_tmp[3], 4, String.charAt(ss[0], 4));
+            do String.setCharAt(ss_tmp[3], 5, String.charAt(ss[1], 4));
+            do String.setCharAt(ss_tmp[3], 6, String.charAt(ss[2], 4));
+            do String.setCharAt(ss_tmp[3], 7, String.charAt(ss[3], 4));
+        */
         do Main.copyBlock(ss_tmp, ss);
         return;
     }
 
     function void rotateRight(Array ss) {
-        do String.setCharAt(ss_tmp[0], 4, String.charAt(ss[3], 4));
-        do String.setCharAt(ss_tmp[0], 5, String.charAt(ss[2], 4));
-        do String.setCharAt(ss_tmp[0], 6, String.charAt(ss[1], 4));
-        do String.setCharAt(ss_tmp[0], 7, String.charAt(ss[0], 4));
-        do String.setCharAt(ss_tmp[1], 4, String.charAt(ss[3], 5));
-        do String.setCharAt(ss_tmp[1], 5, String.charAt(ss[2], 5));
-        do String.setCharAt(ss_tmp[1], 6, String.charAt(ss[1], 5));
-        do String.setCharAt(ss_tmp[1], 7, String.charAt(ss[0], 5));
-        do String.setCharAt(ss_tmp[2], 4, String.charAt(ss[3], 6));
-        do String.setCharAt(ss_tmp[2], 5, String.charAt(ss[2], 6));
-        do String.setCharAt(ss_tmp[2], 6, String.charAt(ss[1], 6));
-        do String.setCharAt(ss_tmp[2], 7, String.charAt(ss[0], 6));
-        do String.setCharAt(ss_tmp[3], 4, String.charAt(ss[3], 7));
-        do String.setCharAt(ss_tmp[3], 5, String.charAt(ss[2], 7));
-        do String.setCharAt(ss_tmp[3], 6, String.charAt(ss[1], 7));
-        do String.setCharAt(ss_tmp[3], 7, String.charAt(ss[0], 7));
+        var String B, aa,bb,cc,dd;
+        var int i;
+        let i = 0;
+        while(i < 4){
+            let B = ss_tmp[i];
+            let aa = ss[3];
+            let bb = ss[2];
+            let cc = ss[1];
+            let dd = ss[0];
+            do B.setCharAt(4, aa.charAt(4+i));
+            do B.setCharAt(5, bb.charAt(4+i));
+            do B.setCharAt(6, cc.charAt(4+i));
+            do B.setCharAt(7, dd.charAt(4+i));
+            let i = i + 1;
+        }
+        /*
+            do String.setCharAt(ss_tmp[0], 4, String.charAt(ss[3], 4));
+            do String.setCharAt(ss_tmp[0], 5, String.charAt(ss[2], 4));
+            do String.setCharAt(ss_tmp[0], 6, String.charAt(ss[1], 4));
+            do String.setCharAt(ss_tmp[0], 7, String.charAt(ss[0], 4));
+
+            do String.setCharAt(ss_tmp[1], 4, String.charAt(ss[3], 5));
+            do String.setCharAt(ss_tmp[1], 5, String.charAt(ss[2], 5));
+            do String.setCharAt(ss_tmp[1], 6, String.charAt(ss[1], 5));
+            do String.setCharAt(ss_tmp[1], 7, String.charAt(ss[0], 5));
+
+            do String.setCharAt(ss_tmp[2], 4, String.charAt(ss[3], 6));
+            do String.setCharAt(ss_tmp[2], 5, String.charAt(ss[2], 6));
+            do String.setCharAt(ss_tmp[2], 6, String.charAt(ss[1], 6));
+            do String.setCharAt(ss_tmp[2], 7, String.charAt(ss[0], 6));
+
+            do String.setCharAt(ss_tmp[3], 4, String.charAt(ss[3], 7));
+            do String.setCharAt(ss_tmp[3], 5, String.charAt(ss[2], 7));
+            do String.setCharAt(ss_tmp[3], 6, String.charAt(ss[1], 7));
+            do String.setCharAt(ss_tmp[3], 7, String.charAt(ss[0], 7));
+        */
         do Main.copyBlock(ss_tmp, ss);
         return;
     }
@@ -446,7 +506,10 @@ class Main {
     }
 
     function void eraseLine(int n) {  // Erases the nth line.
-        do String.dispose(ss_bg[n]);
+        var String sssss;
+        let sssss = ss_bg[n];
+        do sssss.dispose();
+        // do String.dispose(ss_bg[n]);
 
         while (n > 1) {
             let ss_bg[n] = ss_bg[n - 1];
