@@ -181,7 +181,7 @@ class Main {
 
     function int random() {  // Returns a random number of 16-bit.
         var int x;
-        let x = rand * rand;
+        let x = (rand * rand) + 3;
         let rand = Main.modulo(x , 127);
         return rand;
     }
