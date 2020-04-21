@@ -7,10 +7,6 @@
 #include "JackTokenizer.h"
 
 namespace nand2tetris {
-#define DEBUG(msg) debug(__func__, msg)
-    void debug(const std::string& f, const std::string& msg) {
-        std::cerr << f << ":" << msg << std::endl;
-    }
     CompilationEngine::CompilationEngine(
         const std::string& inputfile, const std::string& outputfile)
         :tokenizer_(inputfile), symbol_table_(),
@@ -282,7 +278,6 @@ namespace nand2tetris {
             if (keyword == kKeyword_Static)kind = SymbolType::STATIC;
             else if (keyword == kKeyword_Field)kind = SymbolType::FIELD;
             else {
-                DEBUG("keyword is " + keyword);
                 assert(false);
             }
         }
