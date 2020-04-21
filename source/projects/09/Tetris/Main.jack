@@ -5,7 +5,7 @@ class Main {
 
     function void main() {
         let TOP = 1;
-        let LEFT = 26;
+        let LEFT = 30;
         let H = 22;
         let W = 12;
         let BLOCK = 4;
@@ -25,17 +25,28 @@ class Main {
         do Main.println("   Z key: rotate left");
         do Main.println("   X key: rotate right");
         do Main.println("   Down key: drop");
-        do Output.moveCursor(1, 40);
+
+        do Output.moveCursor(10, 0);
+        do Main.println("@@  @   @   @@@ @ @@@@   @@@ ");
+        do Main.println("@ @ @  @ @  @ @ @ @   @ @   @");
+        do Main.println("@ @ @ @   @ @ @ @ @   @    @ ");
+        do Main.println("@ @ @ @@@@@ @ @ @ @   @  @   ");
+        do Main.println("@  @@ @   @ @  @@ @@@@  @@@@@");
+        do Main.println("");
+
+        do Main.println("@@@@@ @@@@ @@@@@ @@@  @  @@@");
+        do Main.println("  @   @      @   @  @ @ @   ");
+        do Main.println("  @   @@@@   @   @@@  @  @@ ");
+        do Main.println("  @   @      @   @  @ @    @");
+        do Main.println("  @   @@@@   @   @  @ @ @@@ ");
+
+        do Output.moveCursor(1, 43);
         do Main.print("Level: ");
-        do Output.moveCursor(2, 40);
+        do Output.moveCursor(2, 43);
         do Main.print("Score: ");
-        do Output.moveCursor(6, 40);
-        do Main.print("Next: ");
         do Main.setNext();
         do Main.copyBlock(ss_next, ss_now);
         do Main.setNext();
-        do Output.moveCursor(8, 40);
-        do Main.print("yang33");
         do Main.loop();
         return;
     }
@@ -153,9 +164,9 @@ class Main {
                     do Main.mergeField(ss_buf, H, ss_bg, H, 0, 0, false);
                     do Main.mergeField(ss_buf, H, ss_now, BLOCK, y, x, false);
                     do Main.printStrings(TOP, LEFT, ss_buf, H);
-                    do Output.moveCursor(1, 47);
+                    do Output.moveCursor(1, 50);
                     do Output.printInt(level);
-                    do Output.moveCursor(2, 47);
+                    do Output.moveCursor(2, 50);
                     do Output.printInt(score);
                     while (is_over) {}
                     let is_update = false;
@@ -183,7 +194,7 @@ class Main {
 
     function int random() {  // Returns a random number of 16-bit.
         var int x;
-        let x = rand * rand;
+        let x = (rand * rand) + 3;
         let rand = Main.modulo(x , 127);
         return rand;
     }
@@ -203,7 +214,34 @@ class Main {
             let i = i - 1;
         }
 
-        do Main.printStrings(8, 43, ss_next, 4);
+        do Main.printStrings(8, 42, ss_next, 4);
+
+        do Output.moveCursor(6, 43);
+        do Main.println("Next @@@@");
+        do Output.moveCursor(7, 43);
+        do Main.print("@");
+        do Output.moveCursor(7, 51);
+        do Main.print("@");
+        do Output.moveCursor(8, 43);
+        do Main.print("@");
+        do Output.moveCursor(8, 51);
+        do Main.print("@");
+        do Output.moveCursor(9, 43);
+        do Main.print("@");
+        do Output.moveCursor(9, 51);
+        do Main.print("@");
+        do Output.moveCursor(10, 43);
+        do Main.print("@");
+        do Output.moveCursor(10, 51);
+        do Main.print("@");
+        do Output.moveCursor(11, 43);
+        do Main.print("@");
+        do Output.moveCursor(11, 51);
+        do Main.print("@");
+
+        do Output.moveCursor(12, 43);
+        do Main.println("@@@@@@@@@");
+
         return;
     }
 
@@ -436,12 +474,12 @@ class Main {
             do String.setCharAt(ss_tmp[1], 5, String.charAt(ss[1], 6));
             do String.setCharAt(ss_tmp[1], 6, String.charAt(ss[2], 6));
             do String.setCharAt(ss_tmp[1], 7, String.charAt(ss[3], 6));
-        
+
             do String.setCharAt(ss_tmp[2], 4, String.charAt(ss[0], 5));
             do String.setCharAt(ss_tmp[2], 5, String.charAt(ss[1], 5));
             do String.setCharAt(ss_tmp[2], 6, String.charAt(ss[2], 5));
             do String.setCharAt(ss_tmp[2], 7, String.charAt(ss[3], 5));
-        
+
             do String.setCharAt(ss_tmp[3], 4, String.charAt(ss[0], 4));
             do String.setCharAt(ss_tmp[3], 5, String.charAt(ss[1], 4));
             do String.setCharAt(ss_tmp[3], 6, String.charAt(ss[2], 4));
